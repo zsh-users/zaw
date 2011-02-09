@@ -23,7 +23,7 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key key2 cand lines selected
+    local key cand lines selected
     local -a displays candidates
     integer bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line
 
@@ -64,8 +64,8 @@ function filter-select() {
 
         elif [[ '#key' -eq '#\\e' ]]; then
             # M-...
-            read -k key2
-            case "${key2}" in
+            read -k key
+            case "${key}" in
                 'v')
                     (( cursor_line -= lines ))
                     ;;
@@ -76,6 +76,27 @@ function filter-select() {
                 '>')
                     (( cursor_line = cand_num ))
                     ;;
+                '[')
+                    # cursor keys
+                    read -k key
+                    case "${key}" in
+                        'A')
+                            # up
+                            (( cursor_line-- ))
+                            ;;
+                        'B')
+                            # down
+                            (( cursor_line++ ))
+                            ;;
+                        'C')
+                            # right
+                            # TODO: move cursor right
+                            ;;
+                        'D')
+                            # left
+                            # TODO: move cursor left
+                            ;;
+                    esac
             esac
 
         else
