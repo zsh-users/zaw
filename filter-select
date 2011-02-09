@@ -1,0 +1,188 @@
+#
+# filter-select
+#
+# filter and select
+#
+# using filter-select, you can incrementaly filter candidate
+# and select one with C-n/C-p keys.
+#
+# press enter to put selected candidate into edit buffer.
+# C-g to abort selection.
+#
+# TODO: highlight matched words
+# TODO: display number of candidates(displays)
+
+function filter-select() {
+    emulate -L zsh
+
+    # save ZLE related variables
+    local orig_lbuffer="${LBUFFER}"
+    local orig_rbuffer="${RBUFFER}"
+    local orig_predisplay="${PREDISPLAY}"
+    local orig_postdisplay="${POSTDISPLAY}"
+    local -a orig_region_highlight
+    orig_region_highlight=("${region_highlight[@]}")
+
+    local key key2 cand lines selected
+    local -a displays candidates
+    integer bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line
+
+    candidates=("$@")
+    cand_num="${#candidates}"
+
+    key=''
+
+    _filter-select-update-lines
+
+    while [[ '#key' -ne '#\\r' && '#key' -ne '#\\n' &&
+             '#key' -ne '#\\C-g' ]]; do
+
+        # cursor が移動できる一番下の行
+        # ${lines} か ${cand_num} の小さい方を使う
+        if (( lines < cand_num )); then
+            bottom_lines="${lines}"
+        else
+            bottom_lines="${cand_num}"
+        fi
+
+        # TODO: cursor keys
+        # TODO: C-n, C-f, C-a, C-e, C-u, C-k, etc.
+        if [[ '#key' -eq '#\\C-h' || '#key' -eq '#\\C-?' ]]; then
+            [[ $#LBUFFER -gt $#l ]] && LBUFFER="$LBUFFER[1,-2]"
+            display_head_line=1
+            cursor_line=1
+            _filter-select-update-lines
+
+        elif [[ '#key' -eq '#\\C-n' ]]; then
+            (( cursor_line++ ))
+
+        elif [[ '#key' -eq '#\\C-p' ]]; then
+            (( cursor_line-- ))
+
+        elif [[ '#key' -eq '#\\C-v' ]]; then
+            (( cursor_line += lines ))
+
+        elif [[ '#key' -eq '#\\e' ]]; then
+            # M-...
+            read -k key2
+            case "${key2}" in
+                'v')
+                    (( cursor_line -= lines ))
+                    ;;
+                '<')
+                    (( cursor_line = 1 ))
+                    (( display_head_line = 1 ))
+                    ;;
+                '>')
+                    (( cursor_line = cand_num ))
+                    ;;
+            esac
+
+        else
+            LBUFFER="${LBUFFER}${key}"
+            display_head_line=1
+            cursor_line=1
+            _filter-select-update-lines
+        fi
+
+        if (( cursor_line < 1 )); then
+            (( display_head_line -= 1 - cursor_line ))
+            if (( display_head_line < 1 )); then
+                (( display_head_line = 1 ))
+            fi
+            (( cursor_line = 1 ))
+
+        elif (( cursor_line > bottom_lines )); then
+            (( display_head_line += cursor_line - bottom_lines ))
+            if (( display_head_line > cand_num - lines )); then
+                (( display_head_line = cand_num - lines ))
+            fi
+            (( cursor_line = bottom_lines ))
+        fi
+
+        if (( ! PENDING )); then
+            region_highlight=("${orig_region_highlight[@]}")
+
+            displays=()
+            offset="${#BUFFER}"
+
+            # nums patters matched
+            cand_num=0
+
+            # nums displayed
+            disp_num=0
+
+            display_bottom_line=$(( display_head_line + lines))
+
+            for cand in "${candidates[@]}"; do
+                # use ${BUFFER} as pattern and check to match candidate
+                if [[ -n "${BUFFER}" && "${cand}" != *${~BUFFER}* ]]; then
+                    continue
+                fi
+
+                (( cand_num++ ))
+
+                # out of display
+                if (( cand_num < display_head_line || cand_num > display_bottom_line )); then
+                    continue
+                fi
+
+                (( disp_num++ ))
+
+                if (( ${#cand} > COLUMNS - 1 )); then
+                    # strip long line
+                    # XXX: is this ok for multibyte?
+                    cand="${cand[1,$(( COLUMNS - 5 ))]} ..."
+                fi
+
+                displays+="${cand}"
+
+                if (( disp_num == cursor_line )); then
+                    region_highlight+="${offset} $(( offset + ${#cand} + 1 )) standout"
+                    selected="${cand}"
+                fi
+
+                (( offset += ${#cand} + 1 )) # +1 -> \n
+            done
+
+            POSTDISPLAY=$'\n'"${(F)displays}"$'\n'
+            zle -R
+
+        fi
+
+        read -k key
+    done
+
+    if [[ '#key' -eq '#\\r' || '#key' -eq '#\\n' ]]; then
+        LBUFFER="${selected}"
+        RBUFFER=""
+
+    elif [[ '#key' -eq '#\\C-g' ]]; then
+        LBUFFER="${orig_lbuffer}"
+        RBUFFER="${orig_rbuffer}"
+    fi
+
+    PREDISPLAY="${orig_predisplay}"
+    POSTDISPLAY="${orig_postdisplay}"
+    region_highlight=("${orig_region_highlight[@]}")
+    zle -Rc
+    zle reset-prompt
+}
+
+function _filter-select-update-lines() {
+    # XXX: this function override ${lines}
+    #      that define as local in filter-select
+
+    local _tmp_postdisplay="${POSTDISPLAY}"
+    # to re-calculate ${BUFFERLINES}
+    POSTDISPLAY=""
+    zle -R
+
+    # lines that can be used to display candidates
+    (( lines = LINES - BUFFERLINES ))
+
+    POSTDISPLAY="${_tmp_postdisplay}"
+    zle -R
+}
+
+filter-select "$@"

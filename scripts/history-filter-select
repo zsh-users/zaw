@@ -1,0 +1,19 @@
+# history-filter-select
+#
+# select history using filter-select
+#
+# usage:
+#   put this file and filter-select under $fpath,
+#   add these lines to your .zshrc:
+#
+#       autoload -U history-filter-select
+#       zle -N history-filter-select
+#       bindkey '^s' history-filter-select
+autoload -U filter-select
+
+function history-filter-select() {
+    # limit 2000 history
+    filter-select "${(f@)$(fc -l -n -1 -2000)}"
+}
+
+history-filter-select "$@"
