@@ -25,7 +25,7 @@ function filter-select() {
 
     local key cand lines selected
     local -a displays candidates
-    integer bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line
+    integer bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
 
     candidates=("$@")
     cand_num="${#candidates}"
@@ -133,6 +133,8 @@ function filter-select() {
             # nums displayed
             disp_num=0
 
+            selected_num=0
+
             display_bottom_line=$(( display_head_line + lines))
 
             for cand in "${candidates[@]}"; do
@@ -161,6 +163,7 @@ function filter-select() {
                 if (( disp_num == cursor_line )); then
                     region_highlight+="${offset} $(( offset + ${#cand} + 1 )) standout"
                     selected="${cand}"
+                    selected_num=${cand_num}
                 fi
 
                 if [[ -n "${BUFFER}" && "${cand}" == (#b)*(${~BUFFER})* ]]; then
@@ -171,7 +174,7 @@ function filter-select() {
                 (( offset += ${#cand} + 1 )) # +1 -> \n
             done
 
-            POSTDISPLAY=$'\n'"${(F)displays}"$'\n'"[$(( display_head_line + cursor_line - 1 ))/${cand_num}]"
+            POSTDISPLAY=$'\n'"${(F)displays}"$'\n'"[${selected_num}/${cand_num}]"
             zle -R
 
         fi
