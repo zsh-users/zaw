@@ -183,15 +183,15 @@ function filter-select() {
 
                 displays+="${cand}"
 
+                if [[ -n "${BUFFER}" && "${cand}" == (#b)*(${~BUFFER})* ]]; then
+                    # highlight matched words
+                    region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${FILTER_SELECT_HIGHLIGHT}"
+                fi
+
                 if (( disp_num == cursor_line )); then
                     region_highlight+="${offset} $(( offset + ${#cand} + 1 )) standout"
                     selected="${cand}"
                     selected_num=${cand_num}
-                fi
-
-                if [[ -n "${BUFFER}" && "${cand}" == (#b)*(${~BUFFER})* ]]; then
-                    # highlight matched words
-                    region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${FILTER_SELECT_HIGHLIGHT}"
                 fi
 
                 (( offset += ${#cand} + 1 )) # +1 -> \n
