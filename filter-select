@@ -9,11 +9,13 @@
 # press enter to put selected candidate into edit buffer.
 # C-g to abort selection.
 #
-# TODO: highlight matched words
 # TODO: display number of candidates(displays)
+
+FILTER_SELECT_HIGHLIGHT=${FILTER_SELECT_HIGHLIGHT:-fg=magenta,standout}
 
 function filter-select() {
     emulate -L zsh
+    setopt local_options extended_glob
 
     # save ZLE related variables
     local orig_lbuffer="${LBUFFER}"
@@ -161,6 +163,11 @@ function filter-select() {
                 if (( disp_num == cursor_line )); then
                     region_highlight+="${offset} $(( offset + ${#cand} + 1 )) standout"
                     selected="${cand}"
+                fi
+
+                if [[ -n "${BUFFER}" && "${cand}" == (#b)*(${~BUFFER})* ]]; then
+                    # highlight matched words
+                    region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${FILTER_SELECT_HIGHLIGHT}"
                 fi
 
                 (( offset += ${#cand} + 1 )) # +1 -> \n
