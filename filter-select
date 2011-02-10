@@ -133,6 +133,7 @@ function filter-select() {
             # nums displayed
             disp_num=0
 
+            selected=""
             selected_num=0
 
             display_bottom_line=$(( display_head_line + lines))
