@@ -131,6 +131,10 @@ function filter-select() {
             fi
             (( cursor_line = 1 ))
 
+        elif (( bottom_lines == 0 )); then
+            (( display_head_line = 1 ))
+            (( cursor_line = 1 ))
+
         elif (( cursor_line > bottom_lines )); then
             (( display_head_line += cursor_line - bottom_lines ))
             if (( display_head_line > cand_num - lines + 1 )); then
