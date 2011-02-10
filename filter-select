@@ -45,19 +45,39 @@ function filter-select() {
             bottom_lines="${cand_num}"
         fi
 
-        # TODO: cursor keys
-        # TODO: C-n, C-f, C-a, C-e, C-u, C-k, etc.
         if [[ '#key' -eq '#\\C-h' || '#key' -eq '#\\C-?' ]]; then
-            [[ $#LBUFFER -gt $#l ]] && LBUFFER="$LBUFFER[1,-2]"
-            display_head_line=1
-            cursor_line=1
-            _filter-select-update-lines
+            zle backward-delete-char
+            _filter-select-reset
 
         elif [[ '#key' -eq '#\\C-n' ]]; then
             (( cursor_line++ ))
 
         elif [[ '#key' -eq '#\\C-p' ]]; then
             (( cursor_line-- ))
+
+        elif [[ '#key' -eq '#\\C-f' ]]; then
+            zle forward-char
+
+        elif [[ '#key' -eq '#\\C-b' ]]; then
+            zle backward-char
+
+        elif [[ '#key' -eq '#\\C-a' ]]; then
+            zle beginning-of-line
+
+        elif [[ '#key' -eq '#\\C-e' ]]; then
+            zle end-of-line
+
+        elif [[ '#key' -eq '#\\C-w' ]]; then
+            zle backward-kill-word
+            _filter-select-reset
+
+        elif [[ '#key' -eq '#\\C-k' ]]; then
+            zle kill-line
+            _filter-select-reset
+
+        elif [[ '#key' -eq '#\\C-u' ]]; then
+            zle kill-whole-line
+            _filter-select-reset
 
         elif [[ '#key' -eq '#\\C-v' ]]; then
             (( cursor_line += lines ))
@@ -90,20 +110,18 @@ function filter-select() {
                             ;;
                         'C')
                             # right
-                            # TODO: move cursor right
+                            zle forward-char
                             ;;
                         'D')
                             # left
-                            # TODO: move cursor left
+                            zle backward-char
                             ;;
                     esac
             esac
 
         else
             LBUFFER="${LBUFFER}${key}"
-            display_head_line=1
-            cursor_line=1
-            _filter-select-update-lines
+            _filter-select-reset
         fi
 
         if (( cursor_line < 1 )); then
@@ -214,6 +232,12 @@ function _filter-select-update-lines() {
 
     POSTDISPLAY="${_tmp_postdisplay}"
     zle -R
+}
+
+function _filter-select-reset() {
+    display_head_line=1
+    cursor_line=1
+    _filter-select-update-lines
 }
 
 filter-select "$@"
