@@ -117,8 +117,8 @@ function filter-select() {
 
         elif (( cursor_line > bottom_lines )); then
             (( display_head_line += cursor_line - bottom_lines ))
-            if (( display_head_line > cand_num - lines )); then
-                (( display_head_line = cand_num - lines ))
+            if (( display_head_line > cand_num - lines + 1 )); then
+                (( display_head_line = cand_num - lines + 1 ))
             fi
             (( cursor_line = bottom_lines ))
         fi
