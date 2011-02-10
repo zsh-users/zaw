@@ -8,8 +8,6 @@
 #
 # press enter to put selected candidate into edit buffer.
 # C-g to abort selection.
-#
-# TODO: display number of candidates(displays)
 
 FILTER_SELECT_HIGHLIGHT=${FILTER_SELECT_HIGHLIGHT:-fg=magenta,standout}
 
@@ -173,7 +171,7 @@ function filter-select() {
                 (( offset += ${#cand} + 1 )) # +1 -> \n
             done
 
-            POSTDISPLAY=$'\n'"${(F)displays}"$'\n'
+            POSTDISPLAY=$'\n'"${(F)displays}"$'\n'"[$(( display_head_line + cursor_line - 1 ))/${cand_num}]"
             zle -R
 
         fi
@@ -207,7 +205,8 @@ function _filter-select-update-lines() {
     zle -R
 
     # lines that can be used to display candidates
-    (( lines = LINES - BUFFERLINES ))
+    # -1 for current/total number display area
+    (( lines = LINES - BUFFERLINES - 1 ))
 
     POSTDISPLAY="${_tmp_postdisplay}"
     zle -R
