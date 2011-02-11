@@ -198,11 +198,17 @@ function filter-select() {
                 (( disp_num++ ))
                 eval 'cand="${'$_candidates'[$i]}"'
 
-                if (( ${(m)#cand} > COLUMNS - 1 )); then
+                cand_disp="${cand}"
+
+                # escape \r\n\t\
+                cand_disp="${cand_disp//\\/\\\\}"
+                cand_disp="${cand_disp//$'\n'/\\n}"
+                cand_disp="${cand_disp//$'\r'/\\r}"
+                cand_disp="${cand_disp//$'\t'/\\t}"
+
+                if (( ${(m)#cand_disp} > COLUMNS - 1 )); then
                     # strip long line
-                    cand_disp="${(mr:$(( COLUMNS - 6 )):::::)cand} ..."
-                else
-                    cand_disp="${cand}"
+                    cand_disp="${(mr:$(( COLUMNS - 6 )):::::)cand_disp} ..."
                 fi
 
                 displays+="${cand_disp}"
