@@ -23,7 +23,7 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected
+    local key cand lines selected cand_disp
     local -a displays candidates
     integer bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
 
@@ -178,23 +178,25 @@ function filter-select() {
                 if (( ${#cand} > COLUMNS - 1 )); then
                     # strip long line
                     # XXX: is this ok for multibyte?
-                    cand="${cand[1,$(( COLUMNS - 5 ))]} ..."
+                    cand_disp="${cand[1,$(( COLUMNS - 5 ))]} ..."
+                else
+                    cand_disp="${cand}"
                 fi
 
-                displays+="${cand}"
+                displays+="${cand_disp}"
 
-                if [[ -n "${BUFFER}" && "${cand}" == (#b)*(${~BUFFER})* ]]; then
+                if [[ -n "${BUFFER}" && "${cand_disp}" == (#b)*(${~BUFFER})* ]]; then
                     # highlight matched words
                     region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${FILTER_SELECT_HIGHLIGHT}"
                 fi
 
                 if (( disp_num == cursor_line )); then
-                    region_highlight+="${offset} $(( offset + ${#cand} + 1 )) standout"
+                    region_highlight+="${offset} $(( offset + ${#cand_disp} + 1 )) standout"
                     selected="${cand}"
                     selected_num=${cand_num}
                 fi
 
-                (( offset += ${#cand} + 1 )) # +1 -> \n
+                (( offset += ${#cand_disp} + 1 )) # +1 -> \n
             done
 
             POSTDISPLAY=$'\n'"${(F)displays}"$'\n'"[${selected_num}/${cand_num}]"
