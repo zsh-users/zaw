@@ -23,7 +23,7 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp
+    local key cand lines selected cand_disp last_buffer=''
     local -a displays matched_cand_keys
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
@@ -35,6 +35,7 @@ function filter-select() {
     done
 
     cand_num="${#candidates}"
+    matched_cand_keys=("${(onk@)candidates}")
 
     key=''
 
@@ -160,10 +161,13 @@ function filter-select() {
 
             display_bottom_line=$(( display_head_line + lines))
 
-            if [[ -n "${BUFFER}" ]]; then
-                matched_cand_keys=("${(onk@)candidates[(R)*${BUFFER}*]}")
-            else
-                matched_cand_keys=("${(onk@)candidates}")
+            if [[ "${BUFFER}" != "${last_buffer}" ]]; then
+                if [[ -n "${BUFFER}" ]]; then
+                    matched_cand_keys=("${(onk@)candidates[(R)*${BUFFER}*]}")
+                else
+                    matched_cand_keys=("${(onk@)candidates}")
+                fi
+                last_buffer="${BUFFER}"
             fi
 
             # nums patters matched
