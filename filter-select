@@ -175,10 +175,9 @@ function filter-select() {
 
                 (( disp_num++ ))
 
-                if (( ${#cand} > COLUMNS - 1 )); then
+                if (( ${(m)#cand} > COLUMNS - 1 )); then
                     # strip long line
-                    # XXX: is this ok for multibyte?
-                    cand_disp="${cand[1,$(( COLUMNS - 5 ))]} ..."
+                    cand_disp="${(mr:$(( COLUMNS - 6 )):::::)cand} ..."
                 else
                     cand_disp="${cand}"
                 fi
