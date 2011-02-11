@@ -12,8 +12,7 @@
 autoload -U filter-select
 
 function history-filter-select() {
-    # limit 2000 history
-    filter-select "${(f@)$(fc -l -n -1 -2000)}"
+    filter-select "${(f@)$(fc -l -n -1 0)}"
 }
 
 history-filter-select "$@"

@@ -24,10 +24,16 @@ function filter-select() {
     orig_region_highlight=("${region_highlight[@]}")
 
     local key cand lines selected cand_disp
-    local -a displays candidates
-    integer bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
+    local -a displays matched_cand_keys
+    local -A candidates
+    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
 
-    candidates=("$@")
+    integer i=0
+    for cand in "$@"; do
+        (( i++ ))
+        candidates+=( $i "${cand}" )
+    done
+
     cand_num="${#candidates}"
 
     key=''
@@ -149,31 +155,26 @@ function filter-select() {
             displays=()
             offset="${#BUFFER}"
 
-            # nums patters matched
-            cand_num=0
-
-            # nums displayed
-            disp_num=0
-
             selected=""
             selected_num=0
 
             display_bottom_line=$(( display_head_line + lines))
 
-            for cand in "${candidates[@]}"; do
-                # use ${BUFFER} as pattern and check to match candidate
-                if [[ -n "${BUFFER}" && "${cand}" != *${~BUFFER}* ]]; then
-                    continue
-                fi
+            if [[ -n "${BUFFER}" ]]; then
+                matched_cand_keys=("${(onk@)candidates[(R)*${BUFFER}*]}")
+            else
+                matched_cand_keys=("${(onk@)candidates}")
+            fi
 
-                (( cand_num++ ))
+            # nums patters matched
+            cand_num="${#matched_cand_keys}"
 
-                # out of display
-                if (( cand_num < display_head_line || cand_num >= display_bottom_line )); then
-                    continue
-                fi
+            # nums displayed
+            disp_num=0
 
+            for i in "${(@)matched_cand_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
                 (( disp_num++ ))
+                cand="${candidates[$i]}"
 
                 if (( ${(m)#cand} > COLUMNS - 1 )); then
                     # strip long line
@@ -192,7 +193,7 @@ function filter-select() {
                 if (( disp_num == cursor_line )); then
                     region_highlight+="${offset} $(( offset + ${#cand_disp} + 1 )) standout"
                     selected="${cand}"
-                    selected_num=${cand_num}
+                    (( selected_num = display_head_line + disp_num - 1 ))
                 fi
 
                 (( offset += ${#cand_disp} + 1 )) # +1 -> \n
