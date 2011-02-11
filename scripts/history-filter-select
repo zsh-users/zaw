@@ -10,9 +10,10 @@
 #       zle -N history-filter-select
 #       bindkey '^s' history-filter-select
 autoload -U filter-select
+zmodload zsh/parameter
 
 function history-filter-select() {
-    filter-select "${(f@)$(fc -l -n -1 0)}"
+    filter-select -A history -r
 }
 
 history-filter-select "$@"

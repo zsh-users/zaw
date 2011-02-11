@@ -8,6 +8,9 @@
 #
 # press enter to put selected candidate into edit buffer.
 # C-g to abort selection.
+#
+# usage:
+#   filter-select [-A assoc-array-name] [-r] [--] [arg]...
 
 FILTER_SELECT_HIGHLIGHT=${FILTER_SELECT_HIGHLIGHT:-fg=magenta,underline}
 
@@ -23,19 +26,34 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp last_buffer=''
+    local key cand lines selected cand_disp last_buffer='' _candidates='' opt o='o'
     local -a displays matched_cand_keys
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
 
-    integer i=0
-    for cand in "$@"; do
-        (( i++ ))
-        candidates+=( $i "${cand}" )
+    while getopts 'A:r' opt; do
+        case "${opt}" in
+            A)
+                _candidates="${OPTARG}"
+                ;;
+            r)
+                # reverse ordering
+                o='O'
+                ;;
+        esac
     done
 
-    cand_num="${#candidates}"
-    matched_cand_keys=("${(onk@)candidates}")
+    if [[ -z "${_candidates}" ]]; then
+        _candidates='candidates'
+        integer i=0
+        for cand in "$@"; do
+            (( i++ ))
+            candidates+=( $i "${cand}" )
+        done
+    fi
+
+    eval 'cand_num="${#'$_candidates'}"'
+    eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'}")'
 
     key=''
 
@@ -163,9 +181,9 @@ function filter-select() {
 
             if [[ "${BUFFER}" != "${last_buffer}" ]]; then
                 if [[ -n "${BUFFER}" ]]; then
-                    matched_cand_keys=("${(onk@)candidates[(R)*${BUFFER}*]}")
+                    eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'[(R)*${BUFFER}*]}")'
                 else
-                    matched_cand_keys=("${(onk@)candidates}")
+                    eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'}")'
                 fi
                 last_buffer="${BUFFER}"
             fi
@@ -178,7 +196,7 @@ function filter-select() {
 
             for i in "${(@)matched_cand_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
                 (( disp_num++ ))
-                cand="${candidates[$i]}"
+                eval 'cand="${'$_candidates'[$i]}"'
 
                 if (( ${(m)#cand} > COLUMNS - 1 )); then
                     # strip long line
