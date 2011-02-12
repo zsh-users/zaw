@@ -26,7 +26,7 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp last_buffer='' _candidates='' opt o='o' pattern
+    local key cand lines selected cand_disp last_buffer='' _candidates='' opt o='o' pattern msg
     local -a displays matched_cand_keys
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
@@ -231,6 +231,12 @@ function filter-select() {
 
                 (( offset += ${#cand_disp} + 1 )) # +1 -> \n
             done
+
+            if (( ${#displays} == 0 )); then
+                msg='pattern not found'
+                displays=( "${msg}" )
+                region_highlight+="${offset} $(( offset + ${#msg} + 1 )) fg=white,bg=red"
+            fi
 
             POSTDISPLAY=$'\n'"${(F)displays}"$'\n'"[${selected_num}/${cand_num}]"
             zle -R
