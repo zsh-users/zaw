@@ -26,34 +26,40 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp last_buffer='' _candidates='' opt o='o' pattern msg
+    local key cand lines selected cand_disp last_buffer='' opt pattern msg
     local -a displays matched_cand_keys
     local -A candidates
-    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
+    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0
+
+    candidates=()
 
     while getopts 'A:r' opt; do
         case "${opt}" in
             A)
-                _candidates="${OPTARG}"
+                # copy input assc array
+                candidates=("${(@kvP)${OPTARG}}")
                 ;;
             r)
                 # reverse ordering
-                o='O'
+                rev=1
                 ;;
         esac
     done
 
-    if [[ -z "${_candidates}" ]]; then
-        _candidates='candidates'
-        integer i=0
-        for cand in "$@"; do
-            (( i++ ))
-            candidates+=( $i "${cand}" )
-        done
+    if (( OPTIND > 1 )); then
+        shift $(( OPTIND - 1 ))
     fi
+    integer i=0
+    for cand in "$@"; do
+        (( i++ ))
+        candidates+=( $i "${cand}" )
+    done
 
-    eval 'cand_num="${#'$_candidates'}"'
-    eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'}")'
+    cand_num="${#candidates}"
+    matched_cand_keys=("${(onk@)candidates}")
+    if (( rev )); then
+        matched_cand_keys=("${(Oa@)matched_cand_keys}")
+    fi
 
     key=''
 
@@ -186,9 +192,12 @@ function filter-select() {
                     pattern="${pattern//\(/\(}"
                     pattern="${pattern//\)/\)}"
 
-                    eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'[(R)*${pattern}*]}")'
+                    matched_cand_keys=("${(onk@)candidates[(R)*${pattern}*]}")
                 else
-                    eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'}")'
+                    matched_cand_keys=("${(onk@)candidates}")
+                fi
+                if (( rev )); then
+                    matched_cand_keys=("${(Oa@)matched_cand_keys}")
                 fi
                 last_buffer="${BUFFER}"
             fi
@@ -201,7 +210,7 @@ function filter-select() {
 
             for i in "${(@)matched_cand_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
                 (( disp_num++ ))
-                eval 'cand="${'$_candidates'[$i]}"'
+                cand="${candidates[$i]}"
 
                 cand_disp="${cand}"
 
