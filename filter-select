@@ -26,7 +26,7 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp last_buffer='' _candidates='' opt o='o'
+    local key cand lines selected cand_disp last_buffer='' _candidates='' opt o='o' pattern
     local -a displays matched_cand_keys
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num
@@ -181,14 +181,19 @@ function filter-select() {
 
             if [[ "${BUFFER}" != "${last_buffer}" ]]; then
                 if [[ -n "${BUFFER}" ]]; then
-                    eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'[(R)*${BUFFER}*]}")'
+                    pattern="${BUFFER}"
+                    # escape "(" and  ")" to avoid crash
+                    pattern="${pattern//\(/\(}"
+                    pattern="${pattern//\)/\)}"
+
+                    eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'[(R)*${pattern}*]}")'
                 else
                     eval 'matched_cand_keys=("${('$o'nk@)'$_candidates'}")'
                 fi
                 last_buffer="${BUFFER}"
             fi
 
-            # nums patters matched
+            # nums pattern matched
             cand_num="${#matched_cand_keys}"
 
             # nums displayed
@@ -213,7 +218,7 @@ function filter-select() {
 
                 displays+="${cand_disp}"
 
-                if [[ -n "${BUFFER}" && "${cand_disp}" == (#b)*(${~BUFFER})* ]]; then
+                if [[ -n "${BUFFER}" && "${cand_disp}" == (#b)*(${~pattern})* ]]; then
                     # highlight matched words
                     region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${FILTER_SELECT_HIGHLIGHT}"
                 fi
