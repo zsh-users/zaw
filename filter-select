@@ -253,13 +253,19 @@ function filter-select() {
         fi
 
         read -k key
+
+        if [[ $? != 0 ]]; then
+            # maybe ^C
+            key=''
+            break
+        fi
     done
 
     if [[ '#key' -eq '#\\r' || '#key' -eq '#\\n' ]]; then
         LBUFFER="${selected}"
         RBUFFER=""
 
-    elif [[ '#key' -eq '#\\C-g' ]]; then
+    elif [[ -z "${key}" || '#key' -eq '#\\C-g' ]]; then
         LBUFFER="${orig_lbuffer}"
         RBUFFER="${orig_rbuffer}"
     fi
