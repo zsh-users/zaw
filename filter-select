@@ -11,8 +11,13 @@
 #
 # usage:
 #   filter-select [-A assoc-array-name] [-r] [--] [arg]...
-
-FILTER_SELECT_HIGHLIGHT=${FILTER_SELECT_HIGHLIGHT:-fg=magenta,underline}
+#
+# available zstyles:
+#   ':filter-select:highlight' selected
+#   ':filter-select:highlight' matched
+#
+#   example:
+#     zstyle ':filter-select:highlight' matched fg=yellow,standout
 
 function filter-select() {
     emulate -L zsh
@@ -30,6 +35,10 @@ function filter-select() {
     local -a displays matched_cand_keys
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0
+
+    local hi_selected hi_matched
+    zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
+    zstyle -s ':filter-select:highlight' matched hi_matched || hi_matched='fg=magenta,underline'
 
     candidates=()
 
@@ -229,11 +238,11 @@ function filter-select() {
 
                 if [[ -n "${BUFFER}" && "${cand_disp}" == (#b)*(${~pattern})* ]]; then
                     # highlight matched words
-                    region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${FILTER_SELECT_HIGHLIGHT}"
+                    region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}"
                 fi
 
                 if (( disp_num == cursor_line )); then
-                    region_highlight+="${offset} $(( offset + ${#cand_disp} + 1 )) standout"
+                    region_highlight+="${offset} $(( offset + ${#cand_disp} + 1 )) ${hi_selected}"
                     selected="${cand}"
                     (( selected_num = display_head_line + disp_num - 1 ))
                 fi
