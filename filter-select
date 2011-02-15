@@ -15,9 +15,12 @@
 # available zstyles:
 #   ':filter-select:highlight' selected
 #   ':filter-select:highlight' matched
+#   ':filter-select' max-lines
 #
 #   example:
 #     zstyle ':filter-select:highlight' matched fg=yellow,standout
+#     zstyle ':filter-select' max-lines 10 # use 10 lines for filter-select
+#     zstyle ':filter-select' max-lines -10 # use $LINES - 10 for filter-select
 
 function filter-select() {
     emulate -L zsh
@@ -39,6 +42,9 @@ function filter-select() {
     local hi_selected hi_matched
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
     zstyle -s ':filter-select:highlight' matched hi_matched || hi_matched='fg=magenta,underline'
+
+    integer max_lines
+    zstyle -s ':filter-select' max-lines max_lines || max_lines=0
 
     candidates=()
 
@@ -72,18 +78,10 @@ function filter-select() {
 
     key=''
 
-    _filter-select-update-lines
+    _filter-select-reset
 
     while [[ '#key' -ne '#\\r' && '#key' -ne '#\\n' &&
              '#key' -ne '#\\C-g' ]]; do
-
-        # cursor が移動できる一番下の行
-        # ${lines} か ${cand_num} の小さい方を使う
-        if (( lines < cand_num )); then
-            bottom_lines="${lines}"
-        else
-            bottom_lines="${cand_num}"
-        fi
 
         if [[ '#key' -eq '#\\C-h' || '#key' -eq '#\\C-?' ]]; then
             zle backward-delete-char
@@ -120,14 +118,14 @@ function filter-select() {
             _filter-select-reset
 
         elif [[ '#key' -eq '#\\C-v' ]]; then
-            (( cursor_line += lines ))
+            (( cursor_line += bottom_lines ))
 
         elif [[ '#key' -eq '#\\e' ]]; then
             # M-...
             read -k key
             case "${key}" in
                 'v')
-                    (( cursor_line -= lines ))
+                    (( cursor_line -= bottom_lines ))
                     ;;
                 '<')
                     (( cursor_line = 1 ))
@@ -192,8 +190,6 @@ function filter-select() {
             selected=""
             selected_num=0
 
-            display_bottom_line=$(( display_head_line + lines))
-
             if [[ "${BUFFER}" != "${last_buffer}" ]]; then
                 if [[ -n "${BUFFER}" ]]; then
                     pattern="${BUFFER}"
@@ -216,6 +212,9 @@ function filter-select() {
 
             # nums displayed
             disp_num=0
+
+            _filter-select-update-bottom-lines
+            display_bottom_line=$(( display_head_line + bottom_lines))
 
             for i in "${(@)matched_cand_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
                 (( disp_num++ ))
@@ -303,10 +302,26 @@ function _filter-select-update-lines() {
     zle -R
 }
 
+function _filter-select-update-bottom-lines() {
+    # cursor が移動できる一番下の行
+    # ${max_lines} か ${lines} か ${cand_num} の小さい方を使う
+    if (( max_lines > 0 && max_lines < lines )); then
+        (( bottom_lines = max_lines ))
+    elif (( max_lines < 0 )); then
+        (( bottom_lines = lines + max_lines ))
+    else
+        (( bottom_lines = lines ))
+    fi
+    if (( cand_num < bottom_lines )); then
+        (( bottom_lines = cand_num ))
+    fi
+}
+
 function _filter-select-reset() {
     display_head_line=1
     cursor_line=1
     _filter-select-update-lines
+    _filter-select-update-bottom-lines
 }
 
 filter-select "$@"
