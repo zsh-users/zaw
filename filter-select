@@ -312,8 +312,13 @@ function _filter-select-update-bottom-lines() {
     else
         (( bottom_lines = lines ))
     fi
+
     if (( cand_num < bottom_lines )); then
         (( bottom_lines = cand_num ))
+    fi
+
+    if (( bottom_lines < 1 )); then
+        (( bottom_lines = 1 ))
     fi
 }
 
