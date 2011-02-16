@@ -54,7 +54,7 @@ function filter-select() {
     orig_region_highlight=("${region_highlight[@]}")
 
     local key cand lines selected cand_disp last_buffer='' opt pattern msg
-    local -a displays matched_cand_keys
+    local -a displays matched_cand_keys match mbegin mend
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0
 
