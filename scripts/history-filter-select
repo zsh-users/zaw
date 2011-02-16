@@ -2,13 +2,17 @@
 #
 # select history using filter-select
 #
-# usage:
-#   put this file and filter-select under $fpath,
-#   add these lines to your .zshrc:
+# press enter to directly execute selected history,
+# or use meta + enter to only update current input buffer.
 #
-#       autoload -U history-filter-select
-#       zle -N history-filter-select
-#       bindkey '^s' history-filter-select
+# to use this script, add these lines to your .zshrc:
+#
+#   fpath+=( /path/to/zsh-filter-select{,/scripts} )
+#   autoload -U history-filter-select
+#   zle -N history-filter-select
+#   bindkey '^s' history-filter-select
+#   bindkey '^r' history-filter-select
+
 autoload -U filter-select
 zmodload zsh/parameter
 
