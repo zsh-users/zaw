@@ -217,10 +217,8 @@ function filter-select() {
 
             if [[ "${BUFFER}" != "${last_buffer}" ]]; then
                 if [[ -n "${BUFFER}" ]]; then
-                    pattern="${BUFFER}"
-                    # escape "(" and  ")" to avoid crash
-                    pattern="${pattern//\(/\(}"
-                    pattern="${pattern//\)/\)}"
+                    # escape "(", ")", "[", "]" and "#" to avoid crash
+                    pattern="${BUFFER//(#m)[()[\]#]/\\${MATCH}}"
 
                     matched_cand_keys=("${(onk@)candidates[(R)*${pattern}*]}")
                 else
