@@ -13,7 +13,17 @@ autoload -U filter-select
 zmodload zsh/parameter
 
 function history-filter-select() {
+    local reply=''
     filter-select -A history -r
+    if [[ $? == 0 ]]; then
+        BUFFER="${reply}"
+        zle accept-line
+    elif [[ -n "${reply}" ]]; then
+        # meta + enter pressed
+        # only update BUFFER, not execute
+        LBUFFER="${reply}"
+        RBUFFER=""
+    fi
 }
 
 history-filter-select "$@"

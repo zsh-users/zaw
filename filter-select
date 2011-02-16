@@ -1,16 +1,35 @@
 #
 # filter-select
 #
-# filter and select
-#
 # using filter-select, you can incrementaly filter candidate
-# and select one with C-n/C-p keys.
+# and select one with ^N/^P keys.
 #
-# press enter to put selected candidate into edit buffer.
-# C-g to abort selection.
+# press enter for filter-select to update $reply and return 0,
+# press meta (alt) + enter to update $reply but return 1,
+# and press ^C or ^G not to update $reply and return 1.
+#
 #
 # usage:
 #   filter-select [-A assoc-array-name] [-r] [--] [arg]...
+#
+# key binds:
+#   enter:         update $reply and return
+#   meta + enter:  update $reply but return 1
+#   ^C, ^G:        return 0
+#   ^H, backspace: backward-delete-char
+#   ^F, right key: forward-char
+#   ^B, left key:  backward-char
+#   ^A:            beginning-of-line
+#   ^E:            end-of-line
+#   ^W:            backward-kill-word
+#   ^K:            kill-line
+#   ^U:            kill-whole-line
+#   ^N, down key:  select next item
+#   ^P, up key:    select previous item
+#   ^V:            page down
+#   ^[V:           page up
+#   ^[<:           select first item
+#   ^[>:           select last item
 #
 # available zstyles:
 #   ':filter-select:highlight' selected
@@ -37,7 +56,7 @@ function filter-select() {
     local key cand lines selected cand_disp last_buffer='' opt pattern msg
     local -a displays matched_cand_keys
     local -A candidates
-    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0
+    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0
 
     local hi_selected hi_matched
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
@@ -123,6 +142,12 @@ function filter-select() {
         elif [[ '#key' -eq '#\\e' ]]; then
             # M-...
             read -k key
+            if [[ '#key' -eq '#\\r' || '#key' -eq '#\\n' ]]; then
+                # meta + enter
+                # return 1
+                ret=1
+                break
+            fi
             case "${key}" in
                 'v')
                     (( cursor_line -= bottom_lines ))
@@ -270,19 +295,21 @@ function filter-select() {
     done
 
     if [[ '#key' -eq '#\\r' || '#key' -eq '#\\n' ]]; then
-        LBUFFER="${selected}"
-        RBUFFER=""
+        reply="${selected}"
 
     elif [[ -z "${key}" || '#key' -eq '#\\C-g' ]]; then
-        LBUFFER="${orig_lbuffer}"
-        RBUFFER="${orig_rbuffer}"
+        ret=1
     fi
 
+    LBUFFER="${orig_lbuffer}"
+    RBUFFER="${orig_rbuffer}"
     PREDISPLAY="${orig_predisplay}"
     POSTDISPLAY="${orig_postdisplay}"
     region_highlight=("${orig_region_highlight[@]}")
     zle -Rc
     zle reset-prompt
+
+    return $ret
 }
 
 function _filter-select-update-lines() {
