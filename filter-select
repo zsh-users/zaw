@@ -343,7 +343,7 @@ function _filter-select-init-keybind() {
     exec {fd}>&2 2>/dev/null
     bindkey -l filterselect > /dev/null
     ret=$?
-    exec 2>&${fd} {fd}>-
+    exec 2>&${fd} {fd}>&-
 
     if (( ret != 0 )); then
         bindkey -N filterselect
