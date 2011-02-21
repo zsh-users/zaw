@@ -271,6 +271,7 @@ function filter-select() {
 
     if [[ "${bounds}" == accept-line ]]; then
         reply="${selected}"
+        ret=0
 
     elif [[ "${bounds}" == accept-search ]]; then
         reply="${selected}"
