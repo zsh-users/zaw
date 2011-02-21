@@ -8,28 +8,38 @@
 # press meta (alt) + enter to update $reply but return 1,
 # and press ^C or ^G not to update $reply and return 1.
 #
+# you can customize keybinds using bindkey command.
+# first, you call::
+#
+#   autoload -U filter-select; filter-select -i
+#
+# to initialize `filterselect` keymap and then do like::
+#
+#   bindkey -M filterselect '^E' accept-search
+#
 #
 # usage:
 #   filter-select [-A assoc-array-name] [-r] [--] [arg]...
+#   filter-select -i
 #
-# key binds:
-#   enter:         update $reply and return
-#   meta + enter:  update $reply but return 1
-#   ^C, ^G:        return 0
-#   ^H, backspace: backward-delete-char
-#   ^F, right key: forward-char
-#   ^B, left key:  backward-char
-#   ^A:            beginning-of-line
-#   ^E:            end-of-line
-#   ^W:            backward-kill-word
-#   ^K:            kill-line
-#   ^U:            kill-whole-line
-#   ^N, down key:  select next item
-#   ^P, up key:    select previous item
-#   ^V:            page down
-#   ^[V:           page up
-#   ^[<:           select first item
-#   ^[>:           select last item
+# default key binds in filterselect:
+#   enter:              accept-line (update $reply and return)
+#   meta + enter:       accept-search (update $reply but return 1)
+#   ^G:                 send-break (return 0)
+#   ^H, backspace:      backward-delete-char
+#   ^F, right key:      forward-char
+#   ^B, left key:       backward-char
+#   ^A:                 beginning-of-line
+#   ^E:                 end-of-line
+#   ^W:                 backward-kill-word
+#   ^K:                 kill-line
+#   ^U:                 kill-whole-line
+#   ^N, down key:       down-line-or-history (select next item)
+#   ^P, up key:         up-line-or-history (select previous item)
+#   ^V, page up key:    forward-word (page down)
+#   ^[V, page down key: backward-word (page up)
+#   ^[<, home key:      beginning-of-history (select first item)
+#   ^[>, end key:       end-of-history (select last item)
 #
 # available zstyles:
 #   ':filter-select:highlight' selected
@@ -53,8 +63,8 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp last_buffer='' opt pattern msg
-    local -a displays matched_cand_keys match mbegin mend
+    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused
+    local -a displays matched_cand_keys match mbegin mend outs
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0
 
@@ -65,9 +75,11 @@ function filter-select() {
     integer max_lines
     zstyle -s ':filter-select' max-lines max_lines || max_lines=0
 
+    _filter-select-init-keybind
+
     candidates=()
 
-    while getopts 'A:r' opt; do
+    while getopts 'A:ri' opt; do
         case "${opt}" in
             A)
                 # copy input assc array
@@ -77,6 +89,9 @@ function filter-select() {
                 # reverse ordering
                 rev=1
                 ;;
+            i)
+                # do nothing. only keybinds are initialized
+                return
         esac
     done
 
@@ -96,96 +111,51 @@ function filter-select() {
     fi
 
     key=''
+    bounds=''
 
     _filter-select-reset
 
-    while [[ '#key' -ne '#\\r' && '#key' -ne '#\\n' &&
-             '#key' -ne '#\\C-g' ]]; do
+    while [[ "${bounds}" != (accept-line|accept-search|send-break) ]]; do
+        case "${bounds}" in
+            *down-line-or-history)
+                (( cursor_line++ ))
+                ;;
 
-        if [[ '#key' -eq '#\\C-h' || '#key' -eq '#\\C-?' ]]; then
-            zle backward-delete-char
-            _filter-select-reset
+            *up-line-or-history)
+                (( cursor_line-- ))
+                ;;
 
-        elif [[ '#key' -eq '#\\C-n' ]]; then
-            (( cursor_line++ ))
+            *forward-word)
+                (( cursor_line += bottom_lines ))
+                ;;
 
-        elif [[ '#key' -eq '#\\C-p' ]]; then
-            (( cursor_line-- ))
+            *backward-word)
+                (( cursor_line -= bottom_lines ))
+                ;;
 
-        elif [[ '#key' -eq '#\\C-f' ]]; then
-            zle forward-char
+            beginning-of-history)
+                (( cursor_line = 1 ))
+                (( display_head_line = 1 ))
+                ;;
 
-        elif [[ '#key' -eq '#\\C-b' ]]; then
-            zle backward-char
+            end-of-history)
+                (( cursor_line = cand_num ))
+                ;;
 
-        elif [[ '#key' -eq '#\\C-a' ]]; then
-            zle beginning-of-line
+            self-insert|undefined-key)
+                LBUFFER="${LBUFFER}${key}"
+                _filter-select-reset
+                ;;
 
-        elif [[ '#key' -eq '#\\C-e' ]]; then
-            zle end-of-line
+            *)
+                buffer_pre_zle="${BUFFER}"
 
-        elif [[ '#key' -eq '#\\C-w' ]]; then
-            zle backward-kill-word
-            _filter-select-reset
+                zle "${bounds}"
 
-        elif [[ '#key' -eq '#\\C-k' ]]; then
-            zle kill-line
-            _filter-select-reset
-
-        elif [[ '#key' -eq '#\\C-u' ]]; then
-            zle kill-whole-line
-            _filter-select-reset
-
-        elif [[ '#key' -eq '#\\C-v' ]]; then
-            (( cursor_line += bottom_lines ))
-
-        elif [[ '#key' -eq '#\\e' ]]; then
-            # M-...
-            read -k key
-            if [[ '#key' -eq '#\\r' || '#key' -eq '#\\n' ]]; then
-                # meta + enter
-                # return 1
-                ret=1
-                break
-            fi
-            case "${key}" in
-                'v')
-                    (( cursor_line -= bottom_lines ))
-                    ;;
-                '<')
-                    (( cursor_line = 1 ))
-                    (( display_head_line = 1 ))
-                    ;;
-                '>')
-                    (( cursor_line = cand_num ))
-                    ;;
-                '[')
-                    # cursor keys
-                    read -k key
-                    case "${key}" in
-                        'A')
-                            # up
-                            (( cursor_line-- ))
-                            ;;
-                        'B')
-                            # down
-                            (( cursor_line++ ))
-                            ;;
-                        'C')
-                            # right
-                            zle forward-char
-                            ;;
-                        'D')
-                            # left
-                            zle backward-char
-                            ;;
-                    esac
-            esac
-
-        else
-            LBUFFER="${LBUFFER}${key}"
-            _filter-select-reset
-        fi
+                if [[ "${BUFFER}" != "${buffer_pre_zle}" ]]; then
+                    _filter-select-reset
+                fi
+        esac
 
         if (( cursor_line < 1 )); then
             (( display_head_line -= 1 - cursor_line ))
@@ -283,19 +253,31 @@ function filter-select() {
 
         fi
 
-        read -k key
+        _filter-select-read-keys
 
         if [[ $? != 0 ]]; then
             # maybe ^C
             key=''
+            bounds=''
             break
+        else
+            key="${reply}"
+            # TODO: key sequence
+            outs=("${(z)$( bindkey -M filterselect -- "${key}" )}")
+            # XXX: will $outs contains more than two values?
+            bounds="${outs[2]}"
         fi
     done
 
-    if [[ '#key' -eq '#\\r' || '#key' -eq '#\\n' ]]; then
+    if [[ "${bounds}" == accept-line ]]; then
         reply="${selected}"
 
-    elif [[ -z "${key}" || '#key' -eq '#\\C-g' ]]; then
+    elif [[ "${bounds}" == accept-search ]]; then
+        reply="${selected}"
+        ret=1
+
+    elif [[ "${bounds}" == send-break ]]; then
+        reply=''
         ret=1
     fi
 
@@ -352,6 +334,97 @@ function _filter-select-reset() {
     cursor_line=1
     _filter-select-update-lines
     _filter-select-update-bottom-lines
+}
+
+function _filter-select-init-keybind() {
+    integer fd ret
+
+    # be quiet and check filterselect keybind defined
+    exec {fd}>&2 2>/dev/null
+    bindkey -l filterselect > /dev/null
+    ret=$?
+    exec 2>&${fd} {fd}>-
+
+    if (( ret != 0 )); then
+        bindkey -N filterselect
+
+        bindkey -M filterselect '^J' accept-line
+        bindkey -M filterselect '^M' accept-line
+        bindkey -M filterselect '^[^J' accept-search
+        bindkey -M filterselect '^[^M' accept-search
+
+        bindkey -M filterselect '^[^G' send-break
+        bindkey -M filterselect '^G' send-break
+
+        bindkey -M filterselect '^H' backward-delete-char
+        bindkey -M filterselect '^?' backward-delete-char
+
+        bindkey -M filterselect '^F' forward-char
+        bindkey -M filterselect '^[[C' forward-char
+
+        bindkey -M filterselect '^B' backward-char
+        bindkey -M filterselect '^[[D' backward-char
+
+        bindkey -M filterselect '^A' beginning-of-line
+        bindkey -M filterselect '^E' end-of-line
+
+        bindkey -M filterselect '^W' backward-kill-word
+        bindkey -M filterselect '^K' kill-line
+        bindkey -M filterselect '^U' kill-whole-line
+
+        # move cursor down/up
+        bindkey -M filterselect '^N' down-line-or-history
+        bindkey -M filterselect '^[[B' down-line-or-history
+        bindkey -M filterselect '^P' up-line-or-history
+        bindkey -M filterselect '^[[A' up-line-or-history
+
+        # page down/up
+        bindkey -M filterselect '^V' forward-word
+        bindkey -M filterselect '^[[6~' forward-word
+
+        bindkey -M filterselect '^[V' backward-word
+        bindkey -M filterselect '^[v' backward-word
+        bindkey -M filterselect '^[[5~' backward-word
+
+        # home/end
+        bindkey -M filterselect '^[<' beginning-of-history
+        bindkey -M filterselect '^[[1~' beginning-of-history
+
+        bindkey -M filterselect '^[>' end-of-history
+        bindkey -M filterselect '^[[4~' end-of-history
+    fi
+}
+
+function _filter-select-read-keys() {
+    local key key2 key3 key4
+    integer ret
+
+    read -k key
+    ret=$?
+    reply="${key}"
+    if [[ '#key' -eq '#\\e' ]]; then
+        # M-...
+        read -t $(( KEYTIMEOUT / 1000 )) -k key2
+        if [[ "${key2}" == '[' ]]; then
+            # cursor keys
+            read -k key3
+            ret=$?
+            if [[ "${key3}" == [0-9] ]]; then
+                # Home, End, PgUp, PgDn ...
+                read -k key4
+                ret=$?
+                reply="${key}${key2}${key3}${key4}"
+            else
+                reply="${key}${key2}${key3}"
+            fi
+        else
+            reply="${key}${key2}"
+        fi
+    else
+        reply="${key}"
+    fi
+
+    return $ret
 }
 
 filter-select "$@"
