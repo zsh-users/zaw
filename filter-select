@@ -147,6 +147,10 @@ function filter-select() {
                 _filter-select-reset
                 ;;
 
+            '')
+                # empty, initial state
+                ;;
+
             *)
                 buffer_pre_zle="${BUFFER}"
 
