@@ -19,7 +19,7 @@
 #
 #
 # usage:
-#   filter-select [-t title] [-A assoc-array-name] [-r] [-e exit-zle-wdget-name]... [--] [arg]...
+#   filter-select [-t title] [-A assoc-array-name] [-d array-of-description] [-D assoc-array-of-descrption] [-r] [-e exit-zle-wdget-name]... [--] [arg]...
 #   filter-select -i
 #
 # default key binds in filterselect:
@@ -65,7 +65,7 @@ function filter-select() {
 
     local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title='' exit_pattern
     local -a displays matched_cand_keys match mbegin mend outs exit_wigdets
-    local -A candidates
+    local -A candidates descriptions
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0
 
     local hi_selected hi_matched
@@ -78,9 +78,10 @@ function filter-select() {
     _filter-select-init-keybind
 
     candidates=()
+    descriptions=()
     exit_wigdets=(accept-line accept-search send-break)
 
-    while getopts 't:A:re:i' opt; do
+    while getopts 't:A:d:D:re:i' opt; do
         case "${opt}" in
             t)
                 title="${OPTARG}"
@@ -88,6 +89,18 @@ function filter-select() {
             A)
                 # copy input assc array
                 candidates=("${(@kvP)${OPTARG}}")
+                ;;
+            d)
+                # copy input array
+                integer i=0
+                for desc in "${(@P)${OPTARG}}"; do
+                    (( i++ ))
+                    descriptions+=( $i "${desc}" )
+                done
+                ;;
+            D)
+                # copy input assc array
+                descriptions=("${(@kvP)${OPTARG}}")
                 ;;
             r)
                 # reverse ordering
@@ -111,10 +124,15 @@ function filter-select() {
         candidates+=( $i "${cand}" )
     done
 
-    cand_num="${#candidates}"
-    matched_cand_keys=("${(onk@)candidates}")
+    if (( $#descriptions == 0 )); then
+        # copy candidates
+        descriptions=("${(@kv)candidates}")
+    fi
+
+    desc_num="${#descriptions}"
+    matched_desc_keys=("${(onk@)descriptions}")
     if (( rev )); then
-        matched_cand_keys=("${(Oa@)matched_cand_keys}")
+        matched_desc_keys=("${(Oa@)matched_desc_keys}")
     fi
 
     key=''
@@ -151,7 +169,7 @@ function filter-select() {
                 ;;
 
             end-of-history)
-                (( cursor_line = cand_num ))
+                (( cursor_line = desc_num ))
                 ;;
 
             self-insert|undefined-key)
@@ -186,8 +204,8 @@ function filter-select() {
 
         elif (( cursor_line > bottom_lines )); then
             (( display_head_line += cursor_line - bottom_lines ))
-            if (( display_head_line > cand_num - bottom_lines + 1 )); then
-                (( display_head_line = cand_num - bottom_lines + 1 ))
+            if (( display_head_line > desc_num - bottom_lines + 1 )); then
+                (( display_head_line = desc_num - bottom_lines + 1 ))
             fi
             (( cursor_line = bottom_lines ))
         fi
@@ -209,18 +227,18 @@ function filter-select() {
                     # escape "(", ")", "[", "]" and "#" to avoid crash
                     pattern="${BUFFER//(#m)[()[\]#]/\\${MATCH}}"
 
-                    matched_cand_keys=("${(onk@)candidates[(R)*${pattern}*]}")
+                    matched_desc_keys=("${(onk@)descriptions[(R)*${pattern}*]}")
                 else
-                    matched_cand_keys=("${(onk@)candidates}")
+                    matched_desc_keys=("${(onk@)descriptions}")
                 fi
                 if (( rev )); then
-                    matched_cand_keys=("${(Oa@)matched_cand_keys}")
+                    matched_desc_keys=("${(Oa@)matched_desc_keys}")
                 fi
                 last_buffer="${BUFFER}"
             fi
 
             # nums pattern matched
-            cand_num="${#matched_cand_keys}"
+            desc_num="${#matched_desc_keys}"
 
             # nums displayed
             disp_num=0
@@ -228,37 +246,37 @@ function filter-select() {
             _filter-select-update-bottom-lines
             display_bottom_line=$(( display_head_line + bottom_lines))
 
-            for i in "${(@)matched_cand_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
+            for i in "${(@)matched_desc_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
                 (( disp_num++ ))
-                cand="${candidates[$i]}"
+                desc="${descriptions[$i]}"
 
-                cand_disp="${cand}"
+                desc_disp="${desc}"
 
                 # escape \r\n\t\
-                cand_disp="${cand_disp//\\/\\\\}"
-                cand_disp="${cand_disp//$'\n'/\\n}"
-                cand_disp="${cand_disp//$'\r'/\\r}"
-                cand_disp="${cand_disp//$'\t'/\\t}"
+                desc_disp="${desc_disp//\\/\\\\}"
+                desc_disp="${desc_disp//$'\n'/\\n}"
+                desc_disp="${desc_disp//$'\r'/\\r}"
+                desc_disp="${desc_disp//$'\t'/\\t}"
 
-                if (( ${(m)#cand_disp} > COLUMNS - 1 )); then
+                if (( ${(m)#desc_disp} > COLUMNS - 1 )); then
                     # strip long line
-                    cand_disp="${(mr:$(( COLUMNS - 6 )):::::)cand_disp} ..."
+                    desc_disp="${(mr:$(( COLUMNS - 6 )):::::)desc_disp} ..."
                 fi
 
-                displays+="${cand_disp}"
+                displays+="${desc_disp}"
 
-                if [[ -n "${BUFFER}" && "${cand_disp}" == (#b)*(${~pattern})* ]]; then
+                if [[ -n "${BUFFER}" && "${desc_disp}" == (#b)*(${~pattern})* ]]; then
                     # highlight matched words
                     region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}"
                 fi
 
                 if (( disp_num == cursor_line )); then
-                    region_highlight+="${offset} $(( offset + ${#cand_disp} + 1 )) ${hi_selected}"
-                    selected="${cand}"
+                    region_highlight+="${offset} $(( offset + ${#desc_disp} + 1 )) ${hi_selected}"
+                    selected="${candidates[$i]}"
                     (( selected_num = display_head_line + disp_num - 1 ))
                 fi
 
-                (( offset += ${#cand_disp} + 1 )) # +1 -> \n
+                (( offset += ${#desc_disp} + 1 )) # +1 -> \n
             done
 
             if (( ${#displays} == 0 )); then
@@ -271,7 +289,7 @@ function filter-select() {
             if [[ -n "${title}" ]]; then
                 POSTDISPLAY+="${title}"$'\n'
             fi
-            POSTDISPLAY+="${(F)displays}"$'\n'"[${selected_num}/${cand_num}]"
+            POSTDISPLAY+="${(F)displays}"$'\n'"[${selected_num}/${desc_num}]"
             zle -R
 
         fi
@@ -340,7 +358,7 @@ function _filter-select-update-lines() {
 
 function _filter-select-update-bottom-lines() {
     # cursor が移動できる一番下の行
-    # ${max_lines} か ${lines} か ${cand_num} の小さい方を使う
+    # ${max_lines} か ${lines} か ${desc_num} の小さい方を使う
     if (( max_lines > 0 && max_lines < lines )); then
         (( bottom_lines = max_lines ))
     elif (( max_lines < 0 )); then
@@ -349,8 +367,8 @@ function _filter-select-update-bottom-lines() {
         (( bottom_lines = lines ))
     fi
 
-    if (( cand_num < bottom_lines )); then
-        (( bottom_lines = cand_num ))
+    if (( desc_num < bottom_lines )); then
+        (( bottom_lines = desc_num ))
     fi
 
     if (( bottom_lines < 1 )); then
