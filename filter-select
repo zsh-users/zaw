@@ -19,7 +19,7 @@
 #
 #
 # usage:
-#   filter-select [-A assoc-array-name] [-r] [--] [arg]...
+#   filter-select [-t title] [-A assoc-array-name] [-r] [--] [arg]...
 #   filter-select -i
 #
 # default key binds in filterselect:
@@ -63,7 +63,7 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused
+    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title=''
     local -a displays matched_cand_keys match mbegin mend outs
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0
@@ -79,8 +79,11 @@ function filter-select() {
 
     candidates=()
 
-    while getopts 'A:ri' opt; do
+    while getopts 't:A:ri' opt; do
         case "${opt}" in
+            t)
+                title="${OPTARG}"
+                ;;
             A)
                 # copy input assc array
                 candidates=("${(@kvP)${OPTARG}}")
@@ -112,6 +115,9 @@ function filter-select() {
 
     key=''
     bounds=''
+
+    # clear strings displayed below the command line
+    zle -Rc
 
     _filter-select-reset
 
@@ -185,6 +191,9 @@ function filter-select() {
 
             displays=()
             offset="${#BUFFER}"
+            if [[ -n "${title}" ]]; then
+                offset+=$(( 1 + $#title ))
+            fi
 
             selected=""
             selected_num=0
@@ -252,7 +261,11 @@ function filter-select() {
                 region_highlight+="${offset} $(( offset + ${#msg} + 1 )) fg=white,bg=red"
             fi
 
-            POSTDISPLAY=$'\n'"${(F)displays}"$'\n'"[${selected_num}/${cand_num}]"
+            POSTDISPLAY=$'\n'
+            if [[ -n "${title}" ]]; then
+                POSTDISPLAY+="${title}"$'\n'
+            fi
+            POSTDISPLAY+="${(F)displays}"$'\n'"[${selected_num}/${cand_num}]"
             zle -R
 
         fi
@@ -300,10 +313,15 @@ function filter-select() {
 function _filter-select-update-lines() {
     # XXX: this function override ${lines}
     #      that define as local in filter-select
+    #      also use ${title}
 
     local _tmp_postdisplay="${POSTDISPLAY}"
     # to re-calculate ${BUFFERLINES}
-    POSTDISPLAY=""
+    if [[ -n "${title}" ]]; then
+        POSTDISPLAY="${title}"$'\n'
+    else
+        POSTDISPLAY=""
+    fi
     zle -R
 
     # lines that can be used to display candidates
