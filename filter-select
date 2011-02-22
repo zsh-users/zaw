@@ -296,6 +296,10 @@ function filter-select() {
         reply=()
         ret=1
 
+    elif [[ "${bounds}" == send-break ]]; then
+        reply=()
+        ret=1
+
     else
         reply=("${bounds}" "${selected}")
         ret=0
