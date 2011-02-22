@@ -19,7 +19,7 @@
 #
 #
 # usage:
-#   filter-select [-t title] [-A assoc-array-name] [-r] [--] [arg]...
+#   filter-select [-t title] [-A assoc-array-name] [-r] [-e exit-zle-wdget-name]... [--] [arg]...
 #   filter-select -i
 #
 # default key binds in filterselect:
@@ -63,8 +63,8 @@ function filter-select() {
     local -a orig_region_highlight
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title=''
-    local -a displays matched_cand_keys match mbegin mend outs
+    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title='' exit_pattern
+    local -a displays matched_cand_keys match mbegin mend outs exit_wigdets
     local -A candidates
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0
 
@@ -78,8 +78,9 @@ function filter-select() {
     _filter-select-init-keybind
 
     candidates=()
+    exit_wigdets=(accept-line accept-search send-break)
 
-    while getopts 't:A:ri' opt; do
+    while getopts 't:A:re:i' opt; do
         case "${opt}" in
             t)
                 title="${OPTARG}"
@@ -91,6 +92,9 @@ function filter-select() {
             r)
                 # reverse ordering
                 rev=1
+                ;;
+            e)
+                exit_wigdets+="${OPTARG}"
                 ;;
             i)
                 # do nothing. only keybinds are initialized
@@ -121,7 +125,9 @@ function filter-select() {
 
     _filter-select-reset
 
-    while [[ "${bounds}" != (accept-line|accept-search|send-break) ]]; do
+    exit_pattern="(${(j:|:)exit_wigdets})"
+
+    while [[ "${bounds}" != ${~exit_pattern} ]]; do
         case "${bounds}" in
             *down-line-or-history)
                 (( cursor_line++ ))
@@ -286,17 +292,13 @@ function filter-select() {
         fi
     done
 
-    if [[ "${bounds}" == accept-line ]]; then
-        reply="${selected}"
+    if [[ -z "${key}" && -z "${bounds}" ]]; then
+        reply=()
+        ret=1
+
+    else
+        reply=("${bounds}" "${selected}")
         ret=0
-
-    elif [[ "${bounds}" == accept-search ]]; then
-        reply="${selected}"
-        ret=1
-
-    elif [[ "${bounds}" == send-break ]]; then
-        reply=''
-        ret=1
     fi
 
     LBUFFER="${orig_lbuffer}"
