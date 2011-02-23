@@ -1,5 +1,5 @@
 #
-# zaw - zsh anything like widget
+# zaw - zsh anything.el-like widget
 #
 # usage:
 #
