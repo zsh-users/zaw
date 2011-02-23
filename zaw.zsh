@@ -9,7 +9,7 @@
 #
 #   and type "^X^Z"
 
-local cur_dir="${${(%):-%N}:a:h}"
+local cur_dir="${${(%):-%N}:A:h}"
 fpath+=("${cur_dir}")
 
 autoload -U filter-select
