@@ -21,7 +21,7 @@ and restart zsh or manualy source ``zaw.zsh``.
 usage
 =====
 
-press ``^X^Z``,
+press ``^X;``,
 
 1. select `source`.
 2. filter items with zsh pattern, use ``^N``, ``^P`` and select one.

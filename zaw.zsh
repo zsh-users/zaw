@@ -7,7 +7,7 @@
 #
 #     source /path/to/zaw.zsh
 #
-#   and type "^X^Z"
+#   and type "^X;"
 
 local cur_dir="${${(%):-%N}:A:h}"
 fpath+=("${cur_dir}")
@@ -165,4 +165,4 @@ function select-action() {}; zle -N select-action
 filter-select -i
 bindkey -M filterselect '^i' select-action
 
-bindkey '^X^Z' zaw
+bindkey '^X;' zaw
