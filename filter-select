@@ -225,9 +225,9 @@ function filter-select() {
             if [[ "${BUFFER}" != "${last_buffer}" ]]; then
                 if [[ -n "${BUFFER}" ]]; then
                     # split into words using shell's command line parsing,
-                    # unquote the words,
+                    # unquote the words, remove duplicated,
                     # escape "(", ")", "[", "]" and "#" to avoid crash
-                    words=("${(@)${(@Q)${(z)BUFFER}}//(#m)[()[\]#]/\\${MATCH}}")
+                    words=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#]/\\${MATCH}}")
 
                     pattern="${words[1]}"
                     matched_descs=("${(kv@)descriptions[(R)*${pattern}*]}")
