@@ -60,12 +60,12 @@ function filter-select() {
     local orig_rbuffer="${RBUFFER}"
     local orig_predisplay="${PREDISPLAY}"
     local orig_postdisplay="${POSTDISPLAY}"
-    local -a orig_region_highlight
+    local -a orig_region_highlight words
     orig_region_highlight=("${region_highlight[@]}")
 
     local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title='' exit_pattern
     local -a displays matched_cand_keys match mbegin mend outs exit_wigdets
-    local -A candidates descriptions
+    local -A candidates descriptions matched_descs
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0
 
     local hi_selected hi_matched
@@ -224,10 +224,19 @@ function filter-select() {
 
             if [[ "${BUFFER}" != "${last_buffer}" ]]; then
                 if [[ -n "${BUFFER}" ]]; then
+                    # split into words using shell's command line parsing,
+                    # unquote the words,
                     # escape "(", ")", "[", "]" and "#" to avoid crash
-                    pattern="${BUFFER//(#m)[()[\]#]/\\${MATCH}}"
+                    words=("${(@)${(@Q)${(z)BUFFER}}//(#m)[()[\]#]/\\${MATCH}}")
 
-                    matched_desc_keys=("${(onk@)descriptions[(R)*${pattern}*]}")
+                    pattern="${words[1]}"
+                    matched_descs=("${(kv@)descriptions[(R)*${pattern}*]}")
+
+                    for pattern in "${(@)words[2,-1]}"; do
+                        matched_descs=("${(kv@)matched_descs[(R)*${pattern}*]}")
+                    done
+
+                    matched_desc_keys=("${(onk@)matched_descs}")
                 else
                     matched_desc_keys=("${(onk@)descriptions}")
                 fi
@@ -265,9 +274,13 @@ function filter-select() {
 
                 displays+="${desc_disp}"
 
-                if [[ -n "${BUFFER}" && "${desc_disp}" == (#b)*(${~pattern})* ]]; then
-                    # highlight matched words
-                    region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}"
+                if [[ -n "${BUFFER}" ]]; then
+                    for pattern in "${(@)words}"; do
+                        if [[ "${desc_disp}" == (#b)*(${~pattern})* ]]; then
+                            # highlight matched words
+                            region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}"
+                        fi
+                    done
                 fi
 
                 if (( disp_num == cursor_line )); then
