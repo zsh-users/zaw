@@ -28,7 +28,7 @@ function zaw-register-src() {
     # $descriptions     -> (optional) array or assoc array of candidates descriptions
     # $actions          -> list of callback function names that receive selected item
     # $act_descriptions -> (optional) list of callback function descriptions
-    # $options          -> (optional) options passed to filter-select
+    # $options          -> (optional) array of options passed to filter-select
     #
     # whether one of candidates or cands-assoc is required
     local name func widget_name
@@ -57,8 +57,8 @@ function zaw-register-src() {
 
 
 function zaw() {
-    local options selected action
-    local -a reply candidates actions act_descriptions
+    local selected action
+    local -a reply candidates actions act_descriptions options
     local -A cands_assoc
 
     # save ZLE related variables
@@ -87,7 +87,7 @@ function zaw() {
 
     # call filter-select to allow user select item
     if (( $#cands_assoc )); then
-        filter-select -e select-action -A cands_assoc ${options}
+        filter-select -e select-action -A cands_assoc "${(@)options}"
     else
         filter-select -e select-action ${options} -- "${(@)candidates}"
     fi
