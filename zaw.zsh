@@ -57,8 +57,8 @@ function zaw-register-src() {
 
 
 function zaw() {
-    local selected action
-    local -a reply candidates actions act_descriptions options
+    local action
+    local -a reply candidates actions act_descriptions options selected
     local -A cands_assoc
 
     # save ZLE related variables
@@ -93,7 +93,11 @@ function zaw() {
     fi
 
     if [[ $? == 0 ]]; then
-        selected="${reply[2]}"
+        if (( $#reply_marked > 0 )); then
+            selected=("${(@)reply_marked}")
+        else
+            selected=("${reply[2]}")
+        fi
 
         case "${reply[1]}" in
             accept-line)
@@ -104,7 +108,7 @@ function zaw() {
                 ;;
             select-action)
                 reply=()
-                filter-select -t "select action for '${selected}'" -d act_descriptions -- "${(@)actions}"
+                filter-select -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
                 ret=$?
 
                 if [[ $ret == 0 ]]; then
@@ -120,7 +124,7 @@ function zaw() {
         LBUFFER="${orig_lbuffer}"
         RBUFFER="${orig_rbuffer}"
 
-        "${action}" "${selected}"
+        "${action}" "${(@)selected}"
     else
         LBUFFER="${orig_lbuffer}"
         RBUFFER="${orig_rbuffer}"
@@ -156,21 +160,23 @@ function zaw-print-src() {
 
 # common callbacks
 function zaw-callback-execute() {
-    BUFFER="$1"
+    BUFFER="${(j:; :)@}"
     zle accept-line
 }
 
 function zaw-callback-replace-buffer() {
-    LBUFFER="$1"
+    LBUFFER="${(j:; :)@}"
     RBUFFER=""
 }
 
 function zaw-callback-append-to-buffer() {
-    LBUFFER="${BUFFER}$1"
+    LBUFFER="${BUFFER}${(j:; :)@}"
 }
 
 function zaw-callback-edit-file() {
-    BUFFER="${EDITOR} ${(q)1}"
+    local -a args
+    args=("${(@q)@}")
+    BUFFER="${EDITOR} ${args}"
     accept-line
 }
 

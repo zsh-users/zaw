@@ -5,6 +5,7 @@ function zaw-src-git-files() {
     fi
     actions=("zaw-callback-edit-file" "zaw-callback-append-to-buffer")
     act_descriptions=("edit file" "append to edit buffer")
+    options=("-m")
 }
 
 zaw-register-src -n git-files zaw-src-git-files
