@@ -154,6 +154,27 @@ function zaw-print-src() {
 }
 
 
+# common callbacks
+function zaw-callback-execute() {
+    BUFFER="$1"
+    zle accept-line
+}
+
+function zaw-callback-replace-buffer() {
+    LBUFFER="$1"
+    RBUFFER=""
+}
+
+function zaw-callback-append-to-buffer() {
+    LBUFFER="${BUFFER}$1"
+}
+
+function zaw-callback-edit-file() {
+    BUFFER="${EDITOR} ${(q)1}"
+    accept-line
+}
+
+
 # load zaw sources
 local src_dir="${cur_dir}/sources"
 if [[ -d "${src_dir}" ]]; then
