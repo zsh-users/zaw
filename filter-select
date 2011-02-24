@@ -63,7 +63,7 @@ function filter-select() {
     local -a orig_region_highlight words
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title='' exit_pattern
+    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title='' exit_pattern nl=$'\n'
     local -a displays matched_cand_keys match mbegin mend outs exit_wigdets
     local -A candidates descriptions matched_descs
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0
@@ -255,6 +255,8 @@ function filter-select() {
             _filter-select-update-bottom-lines
             display_bottom_line=$(( display_head_line + bottom_lines))
 
+            pattern="(${(j:|:)words})"
+
             for i in "${(@)matched_desc_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
                 (( disp_num++ ))
                 desc="${descriptions[$i]}"
@@ -275,12 +277,8 @@ function filter-select() {
                 displays+="${desc_disp}"
 
                 if [[ -n "${BUFFER}" ]]; then
-                    for pattern in "${(@)words}"; do
-                        if [[ "${desc_disp}" == (#b)*(${~pattern})* ]]; then
-                            # highlight matched words
-                            region_highlight+="$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}"
-                        fi
-                    done
+                    # highlight matched words
+                    region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
                 fi
 
                 if (( disp_num == cursor_line )); then
