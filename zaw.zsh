@@ -23,12 +23,13 @@ function zaw-register-src() {
     #
     # SOURCE is function name that define (overrite) these variables
     #
-    # $candidates       -> array of candidates
-    # $cands_assoc      -> assoc array of candidates
-    # $descriptions     -> (optional) array or assoc array of candidates descriptions
-    # $actions          -> list of callback function names that receive selected item
-    # $act_descriptions -> (optional) list of callback function descriptions
-    # $options          -> (optional) array of options passed to filter-select
+    # $candidates        -> array of candidates
+    # $cands_assoc       -> assoc array of candidates
+    # $cand_descriptions -> (optional) array of candidates descriptions
+    # $cand_descriptions_assoc -> (optional) assoc array of candidates descriptions
+    # $actions           -> list of callback function names that receive selected item
+    # $act_descriptions  -> (optional) list of callback function descriptions
+    # $options           -> (optional) array of options passed to filter-select
     #
     # whether one of candidates or cands-assoc is required
     local name func widget_name
@@ -58,7 +59,7 @@ function zaw-register-src() {
 
 function zaw() {
     local selected action
-    local -a reply candidates actions act_descriptions options
+    local -a reply candidates actions act_descriptions options cand_descriptions
     local -A cands_assoc
 
     # save ZLE related variables
@@ -85,11 +86,16 @@ function zaw() {
 
     reply=()
 
+    if (( $#cand_descriptions )); then
+        options=("-d" "cand_descriptions" "${(@)options}")
+    fi
+    # TODO: cand_descriptions_assoc
+
     # call filter-select to allow user select item
     if (( $#cands_assoc )); then
         filter-select -e select-action -A cands_assoc "${(@)options}"
     else
-        filter-select -e select-action ${options} -- "${(@)candidates}"
+        filter-select -e select-action "${(@)options}" -- "${(@)candidates}"
     fi
 
     if [[ $? == 0 ]]; then
