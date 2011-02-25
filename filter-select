@@ -19,8 +19,40 @@
 #
 #
 # usage:
-#   filter-select [-t title] [-A assoc-array-name] [-d array-of-description] [-D assoc-array-of-descrption] [-r] [-e exit-zle-wdget-name]... [--] [arg]...
+#   filter-select [-t title] [-A assoc-array-name]
+#                 [-d array-of-description] [-D assoc-array-of-descrption]
+#                 [-r] [-e exit-zle-widget-name]... [--] [arg]...
 #   filter-select -i
+#
+#     -t title
+#       title string displayed top of selection.
+#
+#     -A assoc-array-name
+#       name of associative array that contains candidates.
+#       this option is designed to speed up history selection.
+#
+#     -d array-of-description
+#       name of array that contains each candidate's descriptions.
+#       it is used to display and filter candidates.
+#
+#       if not specified, copied from candidates.
+#
+#     -D assoc-array-of-descrption
+#       same as ``-d`` but associative array.
+#
+#     -r
+#       reverse order.
+#
+#     -e exit-zle-widget-name
+#       if keys bound to `exit-zle-widget-name` is pressed,
+#       filter-select exits and set it's name to $reply[1].
+#
+#     args
+#       selection candidates.
+#
+#     -i
+#       only initialize `filterselect` keymaps.
+#
 #
 # default key binds in filterselect:
 #   enter:              accept-line (update $reply and return)
