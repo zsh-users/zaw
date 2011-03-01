@@ -24,7 +24,7 @@ usage
 press ``^X;``,
 
 1. select `source`.
-2. filter items with zsh pattern, use ``^N``, ``^P`` and select one.
+2. filter items with zsh patterns separated by spaces, use ``^N``, ``^P`` and select one.
 3. execute action by pressing enter key or press Meta + enter for alternative action.
 
    instead, press tab key and select action you want to execute.
@@ -35,18 +35,28 @@ sources
 
 currently these sources are available:
 
+  - git-files
   - history
   - perldoc
 
 
-helper widgets
-==============
+shortcut widgets
+================
 
-zaw automaticaly create helper widgets for each sources
+zaw automaticaly create shortcut widgets for each sources
 that directly access to the source.
 
 for example, execute ``bindkey '^R' zaw-history`` and
 press ``^R`` to access history source.
+
+you can get all available shortcut widgets' name using ``zaw-print-src``::
+
+  $ zaw-print-src
+  source name      shortcut widget name
+  ----------------------------------------
+  git-files        zaw-git-files
+  history          zaw-history
+  perldoc          zaw-perldoc
 
 
 key binds and styles

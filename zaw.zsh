@@ -154,6 +154,8 @@ zle -N zaw-select-src
 
 function zaw-print-src() {
     local name func widget_name
+    printf '%-16s %s\n' "source name" "shortcut widget name"
+    print -- '----------------------------------------'
     for name in "${(@ko)zaw_sources}"; do
         widget_name="zaw-${(L)name// /-}"
         printf '%-16s %s\n' "${name}" "${widget_name}"
@@ -189,6 +191,7 @@ if [[ -d "${src_dir}" ]]; then
 fi
 
 # dummy function
+# only used for exit-zle-widget-name
 function select-action() {}; zle -N select-action
 filter-select -i
 bindkey -M filterselect '^i' select-action
