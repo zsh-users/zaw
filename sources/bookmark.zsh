@@ -1,7 +1,9 @@
 #
 # zaw-src-bookmark
 #
-# bookmark your favorite command lines, access it using zaw interface
+# bookmark your favorite command lines, access it using zaw interface.
+# you can bookmark command line using zaw-history's `bookmark this command line` action,
+# or bind some key to ``zaw-bookmark-add-buffer`` and use it.
 #
 
 zmodload zsh/system
