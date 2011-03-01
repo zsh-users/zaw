@@ -35,6 +35,7 @@ sources
 
 currently these sources are available:
 
+  - bookmark
   - git-files
   - history
   - perldoc
@@ -54,6 +55,7 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   $ zaw-print-src
   source name      shortcut widget name
   ----------------------------------------
+  bookmark         zaw-bookmark
   git-files        zaw-git-files
   history          zaw-history
   perldoc          zaw-perldoc
