@@ -170,6 +170,15 @@ function filter-select() {
     key=''
     bounds=''
 
+    # clear edit buffer
+    BUFFER=''
+
+    # display original edit buffer's contants as PREDISPLAY
+    PREDISPLAY="${orig_predisplay}${orig_lbuffer}${orig_rbuffer}${orig_postdisplay}${nl}"
+
+    # prompt for filter-select
+    PREDISPLAY+="filter: "
+
     # clear strings displayed below the command line
     zle -Rc
 
