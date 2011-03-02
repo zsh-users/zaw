@@ -100,10 +100,15 @@ function filter-select() {
     local -a orig_region_highlight words
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title='' exit_pattern nl=$'\n' selected_index mark_num_disp hi start end spec
+    local key cand lines selected cand_disp buffer_pre_zle last_buffer=''
+    local opt pattern msg unused title='' exit_pattern nl=$'\n'
+    local selected_index mark_num_disp hi start end spec
+
     local -a displays matched_cand_keys match mbegin mend outs exit_wigdets init_region_highlight
     local -A candidates descriptions matched_descs marked_lines
-    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0 mark_num markable=0
+
+    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num
+    integer offset display_bottom_line selected_num rev=0 ret=0 mark_num markable=0
 
     local hi_selected hi_matched hi_marked
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
