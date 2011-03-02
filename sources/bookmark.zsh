@@ -8,7 +8,7 @@
 
 zmodload zsh/system
 
-BOOKMARKFILE="${HOME}/.zaw-bookmarks"
+BOOKMARKFILE="${BOOKMARKFILE:-"${HOME}/.zaw-bookmarks"}"
 
 function zaw-src-bookmark() {
     if [[ -f "${BOOKMARKFILE}" ]]; then
