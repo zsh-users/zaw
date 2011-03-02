@@ -100,8 +100,8 @@ function filter-select() {
     local -a orig_region_highlight words
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title='' exit_pattern nl=$'\n' selected_index mark_num_disp
-    local -a displays matched_cand_keys match mbegin mend outs exit_wigdets
+    local key cand lines selected cand_disp buffer_pre_zle last_buffer='' opt pattern msg unused title='' exit_pattern nl=$'\n' selected_index mark_num_disp hi start end spec
+    local -a displays matched_cand_keys match mbegin mend outs exit_wigdets init_region_highlight
     local -A candidates descriptions matched_descs marked_lines
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num offset display_bottom_line selected_num rev=0 ret=0 mark_num markable=0
 
@@ -179,6 +179,26 @@ function filter-select() {
 
     key=''
     bounds=''
+
+    # clear edit buffer
+    BUFFER=''
+
+    # display original edit buffer's contants as PREDISPLAY
+    PREDISPLAY="${orig_predisplay}${orig_lbuffer}${orig_rbuffer}${orig_postdisplay}${nl}"
+
+    # re-calculate region_highlight
+    init_region_highlight=()
+    for hi in "${(@)orig_region_highlight}"; do
+        if [[ "${hi}" == P* ]]; then
+            init_region_highlight+="${hi}"
+        else
+            print -r -- "${hi}" | read start end spec
+            init_region_highlight+="P$(( start + $#orig_predisplay )) $(( end + $#orig_predisplay )) $spec"
+        fi
+    done
+
+    # prompt for filter-select
+    PREDISPLAY+="filter: "
 
     # clear strings displayed below the command line
     zle -Rc
@@ -268,7 +288,7 @@ function filter-select() {
         fi
 
         if (( ! PENDING )); then
-            region_highlight=("${orig_region_highlight[@]}")
+            region_highlight=("${(@)init_region_highlight}")
 
             displays=()
             offset="${#BUFFER}"

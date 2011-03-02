@@ -63,19 +63,11 @@ function zaw() {
     local -a reply candidates actions act_descriptions options selected cand_descriptions
     local -A cands_assoc
 
-    # save ZLE related variables
-    local orig_lbuffer="${LBUFFER}"
-    local orig_rbuffer="${RBUFFER}"
-    LBUFFER=""
-    RBUFFER=""
-
     if [[ $# == 0 ]]; then
         if zle zaw-select-src; then
             func="${reply[2]}"
             reply=()
         else
-            LBUFFER="${orig_lbuffer}"
-            RBUFFER="${orig_rbuffer}"
             return 0
         fi
     else
@@ -121,20 +113,12 @@ function zaw() {
                 if [[ $ret == 0 ]]; then
                     action="${reply[2]}"
                 else
-                    LBUFFER="${orig_lbuffer}"
-                    RBUFFER="${orig_rbuffer}"
                     return 1
                 fi
                 ;;
         esac
 
-        LBUFFER="${orig_lbuffer}"
-        RBUFFER="${orig_rbuffer}"
-
         "${action}" "${(@)selected}"
-    else
-        LBUFFER="${orig_lbuffer}"
-        RBUFFER="${orig_rbuffer}"
     fi
 }
 
