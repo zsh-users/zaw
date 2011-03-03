@@ -102,13 +102,15 @@ function filter-select() {
 
     local key cand lines selected cand_disp buffer_pre_zle last_buffer=''
     local opt pattern msg unused title='' exit_pattern nl=$'\n'
-    local selected_index mark_num_disp hi start end spec
+    local selected_index mark_idx_disp hi start end spec
 
-    local -a displays matched_cand_keys match mbegin mend outs exit_wigdets init_region_highlight
-    local -A candidates descriptions matched_descs marked_lines
+    local -a displays matched_cand_keys match mbegin mend outs exit_wigdets
+    local -a init_region_highlight marked_lines
+    local -A candidates descriptions matched_descs
 
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num
-    integer offset display_bottom_line selected_num rev=0 ret=0 mark_num markable=0
+    integer offset display_bottom_line selected_num rev=0 ret=0
+    integer mark_idx markable=0 is_marked
 
     local hi_selected hi_matched hi_marked
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
@@ -216,16 +218,12 @@ function filter-select() {
         case "${bounds}" in
             set-mark-command)
                 if (( markable )); then
-                    if [[ -z "${marked_lines[${selected_index}]}" ]]; then
-                        if (( $#marked_lines == 0 )); then
-                            mark_num=1
-                        else
-                            # max value + 1
-                            mark_num=$(( ${${(On@)marked_lines}[1]} + 1 ))
-                        fi
-                        marked_lines[${selected_index}]="${mark_num}"
+                    # check if ${selected_index} is already in the marked_lines
+                    if (( ${marked_lines[(ie)${selected_index}]} <= $#marked_lines )); then
+                        # remove selected_index
+                        marked_lines=("${(@)marked_lines:#${selected_index}}")
                     else
-                        unset "marked_lines[${selected_index}]"
+                        marked_lines+="${selected_index}"
                     fi
                 fi
                 ;;
@@ -351,17 +349,20 @@ function filter-select() {
                 desc_disp="${desc_disp//$'\r'/\\r}"
                 desc_disp="${desc_disp//$'\t'/\\t}"
 
-                if [[ -n "${marked_lines[${i}]}" ]]; then
-                    mark_num_disp=" (${marked_lines[${i}]})"
+                mark_idx="${marked_lines[(ie)${i}]}"
+                (( is_marked = mark_idx <= $#marked_lines ))
+
+                if (( is_marked )); then
+                    mark_idx_disp=" (${mark_idx})"
                 else
-                    mark_num_disp=""
+                    mark_idx_disp=""
                 fi
 
-                if (( ${(m)#desc_disp} + $#mark_num_disp > COLUMNS - 1 )); then
+                if (( ${(m)#desc_disp} + $#mark_idx_disp > COLUMNS - 1 )); then
                     # strip long line
-                    desc_disp="${(mr:$(( COLUMNS - $#mark_num_disp - 6 )):::::)desc_disp} ...${mark_num_disp}"
+                    desc_disp="${(mr:$(( COLUMNS - $#mark_idx_disp - 6 )):::::)desc_disp} ...${mark_idx_disp}"
                 else
-                    desc_disp="${desc_disp}${mark_num_disp}"
+                    desc_disp="${desc_disp}${mark_idx_disp}"
                 fi
 
                 displays+="${desc_disp}"
@@ -371,8 +372,8 @@ function filter-select() {
                     region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
                 fi
 
-                if [[ -n "${marked_lines[${i}]}" ]]; then
-                    region_highlight+="${offset} $(( offset + ${#desc_disp} - ${#mark_num_disp} + 1 )) ${hi_marked}"
+                if (( is_marked )); then
+                    region_highlight+="${offset} $(( offset + ${#desc_disp} - ${#mark_idx_disp} + 1 )) ${hi_marked}"
                 fi
 
                 if (( disp_num == cursor_line )); then
@@ -430,12 +431,8 @@ function filter-select() {
         reply=("${bounds}" "${selected}")
         reply_marked=()
         if (( $#marked_lines > 0 )); then
-            local -A rev_marked_lines
-            for k v in "${(@kv)marked_lines}"; do
-                rev_marked_lines[${v}]="${k}"
-            done
-            for k in "${(@onk)rev_marked_lines}"; do
-                reply_marked+="${candidates[${rev_marked_lines[${k}]}]}"
+            for i in "${(@)marked_lines}"; do
+                reply_marked+="${candidates[${i}]}"
             done
         fi
         ret=0
