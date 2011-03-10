@@ -307,7 +307,8 @@ function filter-select() {
                     # split into words using shell's command line parsing,
                     # unquote the words, remove duplicated,
                     # escape "(", ")", "[", "]" and "#" to avoid crash
-                    words=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#]/\\${MATCH}}")
+                    # also escape "|"
+                    words=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
 
                     pattern="${words[1]}"
                     matched_descs=("${(kv@)descriptions[(R)*${pattern}*]}")
