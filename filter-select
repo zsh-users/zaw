@@ -387,16 +387,17 @@ function filter-select() {
                 (( offset += ${#desc_disp} + 1 )) # +1 -> \n
             done
 
-            if (( ${#displays} == 0 )); then
-                msg='pattern not found'
-                displays=( "${msg}" )
-                region_highlight+="${offset} $(( offset + ${#msg} + 1 )) fg=white,bg=red"
-            fi
-
             POSTDISPLAY=$'\n'
             if [[ -n "${title}" ]]; then
                 POSTDISPLAY+="${title}"$'\n'
             fi
+
+            if (( ${#displays} == 0 )); then
+                msg='pattern not found'
+                POSTDISPLAY+="${msg}"
+                region_highlight+="${offset} $(( offset + ${#msg} + 1 )) fg=white,bg=red"
+            fi
+
             POSTDISPLAY+="${(F)displays}"$'\n'"[${selected_num}/${desc_num}]"
             zle -R
 
@@ -419,11 +420,19 @@ function filter-select() {
     done
 
     if [[ -z "${key}" && -z "${bounds}" ]]; then
+        # ^C
         reply=()
         reply_marked=()
         ret=1
 
     elif [[ "${bounds}" == send-break ]]; then
+        # ^G
+        reply=()
+        reply_marked=()
+        ret=1
+
+    elif (( ${#displays} == 0 )); then
+        # no candidate matches pattern (no candidate selected)
         reply=()
         reply_marked=()
         ret=1
