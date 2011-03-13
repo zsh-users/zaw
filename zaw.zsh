@@ -77,6 +77,11 @@ function zaw() {
     # call source function to generate candidates
     "${func}"
 
+    ret="$?"
+    if [[ "${ret}" != 0 ]]; then
+        return 1
+    fi
+
     reply=()
 
     if (( $#cand_descriptions )); then
