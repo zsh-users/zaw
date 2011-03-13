@@ -393,7 +393,11 @@ function filter-select() {
             fi
 
             if (( ${#displays} == 0 )); then
-                msg='pattern not found'
+                if (( ${#candidates} == 0 )); then
+                    msg='no candidate'
+                else
+                    msg='pattern not found'
+                fi
                 POSTDISPLAY+="${msg}"
                 region_highlight+="${offset} $(( offset + ${#msg} + 1 )) fg=white,bg=red"
             fi
