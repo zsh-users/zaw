@@ -338,54 +338,56 @@ function filter-select() {
 
             pattern="(${(j:|:)words})"
 
-            for i in "${(@)matched_desc_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
-                (( disp_num++ ))
-                desc="${descriptions[$i]}"
+            if (( desc_num )); then
+                for i in "${(@)matched_desc_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
+                    (( disp_num++ ))
+                    desc="${descriptions[$i]}"
 
-                desc_disp="${desc}"
+                    desc_disp="${desc}"
 
-                # escape \r\n\t\
-                desc_disp="${desc_disp//\\/\\\\}"
-                desc_disp="${desc_disp//$'\n'/\\n}"
-                desc_disp="${desc_disp//$'\r'/\\r}"
-                desc_disp="${desc_disp//$'\t'/\\t}"
+                    # escape \r\n\t\
+                    desc_disp="${desc_disp//\\/\\\\}"
+                    desc_disp="${desc_disp//$'\n'/\\n}"
+                    desc_disp="${desc_disp//$'\r'/\\r}"
+                    desc_disp="${desc_disp//$'\t'/\\t}"
 
-                mark_idx="${marked_lines[(ie)${i}]}"
-                (( is_marked = mark_idx <= $#marked_lines ))
+                    mark_idx="${marked_lines[(ie)${i}]}"
+                    (( is_marked = mark_idx <= $#marked_lines ))
 
-                if (( is_marked )); then
-                    mark_idx_disp=" (${mark_idx})"
-                else
-                    mark_idx_disp=""
-                fi
+                    if (( is_marked )); then
+                        mark_idx_disp=" (${mark_idx})"
+                    else
+                        mark_idx_disp=""
+                    fi
 
-                if (( ${(m)#desc_disp} + $#mark_idx_disp > COLUMNS - 1 )); then
-                    # strip long line
-                    desc_disp="${(mr:$(( COLUMNS - $#mark_idx_disp - 6 )):::::)desc_disp} ...${mark_idx_disp}"
-                else
-                    desc_disp="${desc_disp}${mark_idx_disp}"
-                fi
+                    if (( ${(m)#desc_disp} + $#mark_idx_disp > COLUMNS - 1 )); then
+                        # strip long line
+                        desc_disp="${(mr:$(( COLUMNS - $#mark_idx_disp - 6 )):::::)desc_disp} ...${mark_idx_disp}"
+                    else
+                        desc_disp="${desc_disp}${mark_idx_disp}"
+                    fi
 
-                displays+="${desc_disp}"
+                    displays+="${desc_disp}"
 
-                if [[ -n "${BUFFER}" ]]; then
-                    # highlight matched words
-                    region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
-                fi
+                    if [[ -n "${BUFFER}" ]]; then
+                        # highlight matched words
+                        region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
+                    fi
 
-                if (( is_marked )); then
-                    region_highlight+="${offset} $(( offset + ${#desc_disp} - ${#mark_idx_disp} + 1 )) ${hi_marked}"
-                fi
+                    if (( is_marked )); then
+                        region_highlight+="${offset} $(( offset + ${#desc_disp} - ${#mark_idx_disp} + 1 )) ${hi_marked}"
+                    fi
 
-                if (( disp_num == cursor_line )); then
-                    region_highlight+="${offset} $(( offset + ${#desc_disp} + 1 )) ${hi_selected}"
-                    selected="${candidates[$i]}"
-                    (( selected_num = display_head_line + disp_num - 1 ))
-                    selected_index="${i}"
-                fi
+                    if (( disp_num == cursor_line )); then
+                        region_highlight+="${offset} $(( offset + ${#desc_disp} + 1 )) ${hi_selected}"
+                        selected="${candidates[$i]}"
+                        (( selected_num = display_head_line + disp_num - 1 ))
+                        selected_index="${i}"
+                    fi
 
-                (( offset += ${#desc_disp} + 1 )) # +1 -> \n
-            done
+                    (( offset += ${#desc_disp} + 1 )) # +1 -> \n
+                done
+            fi
 
             POSTDISPLAY=$'\n'
             if [[ -n "${title}" ]]; then
