@@ -9,12 +9,18 @@
 #
 #   and type "^X;"
 
-local cur_dir="${${(%):-%N}:A:h}"
+# to create namespace, use anonymous function
+function() {
+
+zmodload zsh/parameter
+
+local this_file="${funcsourcetrace[1]%:*}"
+local cur_dir="${this_file:A:h}"
 fpath+=("${cur_dir}")
 
 autoload -U filter-select
 
-typeset -A zaw_sources
+typeset -g -A zaw_sources
 zaw_sources=()
 
 function zaw-register-src() {
@@ -33,7 +39,7 @@ function zaw-register-src() {
     # $options           -> (optional) array of options passed to filter-select
     #
     # whether one of candidates or cands-assoc is required
-    local name func widget_name
+    local name func widget_name opts OPTARG OPTIND
 
     while getopts 'n:' opts; do
         name="${OPTARG}"
@@ -59,7 +65,7 @@ function zaw-register-src() {
 
 
 function zaw() {
-    local action
+    local action ret
     local -a reply candidates actions act_descriptions options selected cand_descriptions
     local -A cands_assoc
 
@@ -131,6 +137,7 @@ zle -N zaw
 
 
 function zaw-select-src() {
+    local name
     local -a cands descs
     cands=()
     descs=()
@@ -180,7 +187,7 @@ function zaw-callback-edit-file() {
 
 
 # load zaw sources
-local src_dir="${cur_dir}/sources"
+local src_dir="${cur_dir}/sources" f
 if [[ -d "${src_dir}" ]]; then
     for f ("${src_dir}"/*) source "${f}"
 fi
@@ -192,3 +199,5 @@ filter-select -i
 bindkey -M filterselect '^i' select-action
 
 bindkey '^X;' zaw
+
+}
