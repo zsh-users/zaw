@@ -1,0 +1,121 @@
+#
+# fill-vars-or-accept
+#
+
+# by default, pattern match "${:-variable_name}"
+FILL_VARS_PATTERN='${:-[a-z_][a-z0-9_]#}'
+
+function fill-vars-or-accept() {
+    # TODO: tab completion
+
+    local REPLY
+    local -a orig_region_highlight
+
+    if ! _buffer_has_vars; then
+        zle accept-line
+    fi
+
+    bindkey -N fillvars main
+    bindkey -M fillvars '^i' go-to-next-var
+
+    CURSOR=0
+
+    _get-current-var
+    if [[ -z "${REPLY}" ]]; then
+        go-to-next-var
+    fi
+
+    local POSTDISPLAY=$'\n''[press tab key to move cursor to next variable]'
+
+    while _buffer_has_vars && (( CURSOR < $#BUFFER )); do
+        orig_region_highlight=("${(@)region_highlight}")
+        _highlight-right-vars
+        zle -Rc
+        #zle -R '[press tab key to move next variable]'
+
+        zle read-command -K fillvars
+        reply="$?"
+        cmd_name="${REPLY}"
+
+        region_highlight=("${(@)orig_region_highlight}")
+
+        if [[ "${reply}" != 0 ]]; then
+            return 1
+        fi
+
+        if [[ "${cmd_name}" == accept* ]]; then
+            zle "${cmd_name}"
+            return
+
+        else
+            _get-current-var
+            if [[ -n "${REPLY}" ]]; then
+                if [[ "${cmd_name}" == self-insert* ]]; then
+                    # remove current var
+                    RBUFFER="${RBUFFER[$(( $#REPLY + 1)),-1]}"
+                elif [[ "${cmd_name}" == (*-delete-*|*-kill-*) ]]; then
+                    # remove current var and continue
+                    RBUFFER="${RBUFFER[$(( $#REPLY + 1)),-1]}"
+                    continue
+                fi
+            fi
+        fi
+
+        zle "${cmd_name}"
+    done
+}
+
+function _highlight-right-vars() {
+    emulate -L zsh
+    setopt local_options extended_glob
+
+    local nl=$'\n' rbuffer="${RBUFFER}" REPLY
+    local -a match mbegin mend
+    integer offset="${#LBUFFER}"
+
+    if _buffer_has_vars; then
+        _get-current-var
+        if [[ -n "${REPLY}" ]]; then
+            region_highlight+=( "${offset} $(( offset + ${#REPLY} )) standout" )
+            rbuffer="${rbuffer[$(( ${#REPLY}  )),-1]}"
+            (( offset += $#REPLY - 1 ))
+        fi
+
+        region_highlight+=( "${(f)${(S)rbuffer//*(#b)(${~FILL_VARS_PATTERN})/$(( offset + mbegin[1] - 1 )) $(( offset + mend[1] )) fg=yellow,standout${nl}}%$nl*}" )
+    fi
+}
+
+function _buffer_has_vars() {
+    emulate -L zsh
+    setopt local_options extended_glob
+    [[ "${BUFFER}" == *${~FILL_VARS_PATTERN}* ]]
+}
+
+function go-to-next-var() {
+    emulate -L zsh
+    setopt local_options extended_glob
+
+    local -a match mbegin mend
+    local rrbuffer="${RBUFFER[2,-1]}"
+    if [[ "${rrbuffer}" == *${~FILL_VARS_PATTERN}* ]]; then
+        # to match shortest, use variable expantion
+        : "${(S)rrbuffer/*(#b)(${~FILL_VARS_PATTERN})}"
+        (( CURSOR += ${mbegin[1]} ))
+    else
+        (( CURSOR = $#BUFFER ))
+    fi
+}
+
+zle -N go-to-next-var
+
+function _get-current-var() {
+    emulate -L zsh
+    setopt local_options extended_glob
+
+    REPLY=""
+    if [[ "${RBUFFER}" == (#b)(${~FILL_VARS_PATTERN})* ]]; then
+        REPLY="${match[1]}"
+    fi
+}
+
+fill-vars-or-accept "$@"

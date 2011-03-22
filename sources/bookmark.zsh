@@ -7,6 +7,7 @@
 #
 
 zmodload zsh/system
+autoload -U fill-vars-or-accept
 
 BOOKMARKFILE="${BOOKMARKFILE:-"${HOME}/.zaw-bookmarks"}"
 
@@ -14,7 +15,7 @@ function zaw-src-bookmark() {
     if [[ -f "${BOOKMARKFILE}" ]]; then
         candidates=("${(Qf)$(zsystem flock -r "${BOOKMARKFILE}" && < "${BOOKMARKFILE}")}")
     fi
-    actions=("zaw-callback-execute" "zaw-callback-replace-buffer" "zaw-callback-append-to-buffer" "zaw-bookmark-remove")
+    actions=("zaw-bookmark-execute" "zaw-callback-replace-buffer" "zaw-callback-append-to-buffer" "zaw-bookmark-remove")
     act_descriptions=("execute" "replace edit buffer" "append to edit buffer" "removed bookmark")
     options=("-m")
 }
@@ -25,6 +26,11 @@ zaw-register-src -n bookmark zaw-src-bookmark
 #
 # helper functions for bookmark
 #
+
+function zaw-bookmark-execute() {
+    zaw-callback-replace-buffer "$@"
+    fill-vars-or-accept
+}
 
 function zaw-bookmark-add() {
     local -a bookmarks
