@@ -16,7 +16,7 @@ zmodload zsh/parameter
 
 local this_file="${funcsourcetrace[1]%:*}"
 local cur_dir="${this_file:A:h}"
-fpath+=("${cur_dir}")
+fpath+=("${cur_dir}/functions")
 
 autoload -U filter-select
 
