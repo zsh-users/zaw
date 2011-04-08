@@ -16,17 +16,20 @@ autoload -U read-from-minibuffer
 function zaw-src-ack() {
     local ack_args REPLY f line ret
     local -a ack_history
-    ack_history=( "${(@)${(f)"$(fc -l -n -m "ack --group *" -1 0)"}#ack --group }" )
+    ack_history=( "${(@)${(f)"$(fc -l -n -m "ack --group *" 0 -1)"}#ack --group }" )
 
     function() {
+        local HISTNO
+        integer histno=1
         # temporary switch to new empty history
         fc -p -a
         # and add only ack's args to the history
         for ack_args in "${(@)ack_history}"; do
             print -s -r -- "${ack_args}"
+            (( histno++ ))
         done
-        # XXX: why can't I access history?
-        read-from-minibuffer "ack --group " "${ack_history[1]}"
+        HISTNO="${histno}"
+        read-from-minibuffer "ack --group "
         ret=$?
     }
 
