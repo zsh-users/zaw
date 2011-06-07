@@ -80,6 +80,8 @@ function zaw() {
         func="$1"
     fi
 
+    zle -R "now loading ..."
+
     # call source function to generate candidates
     "${func}"
 
