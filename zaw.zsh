@@ -78,12 +78,13 @@ function zaw() {
         fi
     else
         func="$1"
+        shift
     fi
 
     zle -R "now loading ..."
 
     # call source function to generate candidates
-    "${func}"
+    "${func}" "$@"
 
     ret="$?"
     if [[ "${ret}" != 0 ]]; then
