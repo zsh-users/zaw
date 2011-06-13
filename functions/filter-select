@@ -113,7 +113,7 @@ function filter-select() {
     integer offset display_bottom_line selected_num rev=0 ret=0
     integer mark_idx markable=0 is_marked
 
-    local hi_selected hi_matched hi_marked
+    local hi_selected hi_matched hi_marked hi_title
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
     zstyle -s ':filter-select:highlight' matched hi_matched || hi_matched='fg=magenta,underline'
     zstyle -s ':filter-select:highlight' marked hi_marked || hi_marked='fg=blue,standout'
