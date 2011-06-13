@@ -91,6 +91,7 @@ and these zstyles to customize styles::
 
   ':filter-select:highlight' selected
   ':filter-select:highlight' matched
+  ':filter-select:highlight' title
   ':filter-select' max-lines
 
   example:

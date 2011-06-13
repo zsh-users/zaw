@@ -81,6 +81,7 @@
 # available zstyles:
 #   ':filter-select:highlight' selected
 #   ':filter-select:highlight' matched
+#   ':filter-select:highlight' title
 #   ':filter-select' max-lines
 #
 #   example:
@@ -116,6 +117,7 @@ function filter-select() {
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
     zstyle -s ':filter-select:highlight' matched hi_matched || hi_matched='fg=magenta,underline'
     zstyle -s ':filter-select:highlight' marked hi_marked || hi_marked='fg=blue,standout'
+    zstyle -s ':filter-select:highlight' title hi_title || hi_title='bold'
 
     integer max_lines
     zstyle -s ':filter-select' max-lines max_lines || max_lines=0
@@ -392,6 +394,7 @@ function filter-select() {
             POSTDISPLAY=$'\n'
             if [[ -n "${title}" ]]; then
                 POSTDISPLAY+="${title}"$'\n'
+                region_highlight+="${#BUFFER} $(( $#BUFFER + $#title + 1 )) ${hi_title}"
             fi
 
             if (( ${#displays} == 0 )); then
