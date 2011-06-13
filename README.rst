@@ -93,8 +93,10 @@ and these zstyles to customize styles::
   ':filter-select:highlight' matched
   ':filter-select:highlight' title
   ':filter-select' max-lines
+  ':filter-select' case-insensitive
 
   example:
     zstyle ':filter-select:highlight' matched fg=yellow,standout
     zstyle ':filter-select' max-lines 10 # use 10 lines for filter-select
     zstyle ':filter-select' max-lines -10 # use $LINES - 10 for filter-select
+    zstyle ':filter-select' case-insensitive yes # enable case-insensitive search

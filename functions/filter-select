@@ -83,11 +83,13 @@
 #   ':filter-select:highlight' matched
 #   ':filter-select:highlight' title
 #   ':filter-select' max-lines
+#   ':filter-select' case-insensitive
 #
 #   example:
 #     zstyle ':filter-select:highlight' matched fg=yellow,standout
 #     zstyle ':filter-select' max-lines 10 # use 10 lines for filter-select
 #     zstyle ':filter-select' max-lines -10 # use $LINES - 10 for filter-select
+#     zstyle ':filter-select' case-insensitive yes # enable case-insensitive search
 
 function filter-select() {
     emulate -L zsh
@@ -121,6 +123,14 @@ function filter-select() {
 
     integer max_lines
     zstyle -s ':filter-select' max-lines max_lines || max_lines=0
+
+    local case_insensitive
+    zstyle -s ':filter-select' case-insensitive case_insensitive || case_insensitive=0
+    if [[ "${(L)case_insensitive}" == (no|false|f|0) ]]; then
+        case_insensitive=0
+    else
+        case_insensitive=1
+    fi
 
     _filter-select-init-keybind
 
@@ -313,10 +323,18 @@ function filter-select() {
                     words=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
 
                     pattern="${words[1]}"
-                    matched_descs=("${(kv@)descriptions[(R)*${pattern}*]}")
+                    if (( case_insensitive )); then
+                        matched_descs=("${(kv@)descriptions[(R)(#i)*${pattern}*]}")
+                    else
+                        matched_descs=("${(kv@)descriptions[(R)*${pattern}*]}")
+                    fi
 
                     for pattern in "${(@)words[2,-1]}"; do
-                        matched_descs=("${(kv@)matched_descs[(R)*${pattern}*]}")
+                        if (( case_insensitive )); then
+                            matched_descs=("${(kv@)matched_descs[(R)(#i)*${pattern}*]}")
+                        else
+                            matched_descs=("${(kv@)matched_descs[(R)*${pattern}*]}")
+                        fi
                     done
 
                     matched_desc_keys=("${(onk@)matched_descs}")
@@ -373,7 +391,11 @@ function filter-select() {
 
                     if [[ -n "${BUFFER}" ]]; then
                         # highlight matched words
-                        region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
+                        if (( case_insensitive )); then
+                            region_highlight+=( "${(f)${(S)desc_disp//*(#bi)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
+                        else
+                            region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
+                        fi
                     fi
 
                     if (( is_marked )); then
