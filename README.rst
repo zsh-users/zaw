@@ -100,3 +100,8 @@ and these zstyles to customize styles::
     zstyle ':filter-select' max-lines 10 # use 10 lines for filter-select
     zstyle ':filter-select' max-lines -10 # use $LINES - 10 for filter-select
     zstyle ':filter-select' case-insensitive yes # enable case-insensitive search
+
+license
+=======
+
+BSD-3
