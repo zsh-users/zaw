@@ -6,7 +6,7 @@
 
 function zaw-src-open-file() {
     local root parent d f
-    setopt local_options no_nomatch
+    setopt local_options null_glob
 
     if (( $# == 0 )); then
         root="${PWD}/"
@@ -23,19 +23,11 @@ function zaw-src-open-file() {
 
     # TODO: symlink to directory
     for d in "${root%/}"/*(/); do
-        if [[ ! -d "${d}" ]]; then
-            # no match found
-            break
-        fi
         candidates+=("${d}/")
         cand_descriptions+=("${d:t}/")
     done
 
     for f in "${root%/}"/*(^/); do
-        if [[ ! -e "${f}" ]]; then
-            # no match found
-            break
-        fi
         candidates+=("${f}")
         cand_descriptions+=("${f:t}")
     done
