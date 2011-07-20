@@ -23,7 +23,7 @@ usage
 
 press ``^X;``,
 
-1. select `source`.
+1. select `source` and press ``enter``.
 2. filter items with zsh patterns separated by spaces, use ``^N``, ``^P`` and select one.
 3. execute action by pressing enter key or press Meta + enter for alternative action.
 
@@ -37,8 +37,13 @@ currently these sources are available:
 
   - bookmark
   - git-files
+  - git-showbranch
   - history
+  - memo
+  - named-cmd
+  - open-file
   - perldoc
+  - screens
 
 
 shortcut widgets
