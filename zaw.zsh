@@ -185,7 +185,7 @@ function zaw-callback-edit-file() {
     local -a args
     args=("${(@q)@}")
     BUFFER="${EDITOR} ${args}"
-    accept-line
+    zle accept-line
 }
 
 
