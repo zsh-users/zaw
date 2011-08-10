@@ -35,12 +35,11 @@ sources
 
 currently these sources are available:
 
+  - ack
+  - applications
   - bookmark
   - git-files
-  - git-showbranch
   - history
-  - memo
-  - named-cmd
   - open-file
   - perldoc
   - screens
@@ -60,10 +59,14 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   $ zaw-print-src
   source name      shortcut widget name
   ----------------------------------------
+  ack              zaw-ack
+  applications     zaw-applications
   bookmark         zaw-bookmark
   git-files        zaw-git-files
   history          zaw-history
+  open-file        zaw-open-file
   perldoc          zaw-perldoc
+  screens          zaw-screens
 
 
 key binds and styles
