@@ -5,8 +5,7 @@
 # launcher script to start zaw as command
 
 # source zaw.zsh
-zmodload zsh/parameter
-local this_file="${funcsourcetrace[1]%:*}"
+local this_file="$0"
 local cur_dir="${this_file:A:h}"
 source "${cur_dir}/zaw.zsh"
 
