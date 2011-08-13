@@ -378,7 +378,7 @@ function filter-select() {
                         # highlight matched words
                         for pattern in \
                             "(${(j.|.)${(@M)words:#*'(#e)'}})" \
-                            "(${(j.|.)${(@)words:#*'(#e)'}})" ; do
+                            "(${(j.|.)${(@)words:#(\~*|*'(#e)')}})" ; do
                             if [[ "$pattern" != '()' ]]; then
                                 region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
                             fi
@@ -539,13 +539,25 @@ function _filter-select-buffer-words() {
     if ((case_insensitive)); then
         : ${(A)a::=(#i)${^a}}
     else
-        # remove single "^" like the history-incremental-pattern-searches'
-        : ${(A)a::=${a:#'^'}}
+        # remove single "^" like the history-incremental-pattern-searches',
+        # "~", "!", "\\" and "!^".
+        : ${(A)a::=${a:#([~!^\\]|'!^')}}
 
         # escape "^" other than the beginning's
         # unescape "\\^" one level
         : ${(A)a::=${a//(#m)('^'~(#s)'^')/\\${MATCH}}}
         : ${(A)a::=${a//(#m)'\\^'/${MATCH[2,-1]}}}
+
+        # escape "~" other than the beginning's
+        # unescape "\\~" one level
+        : ${(A)a::=${a//(#m)('~'~(#s)'~')/\\${MATCH}}}
+        : ${(A)a::=${a//(#m)'\\~'/${MATCH[2,-1]}}}
+
+        # "!aoe" -> "~*aoe",
+        # ("a!oe" should be held on, the beginning's "!" only be considered)
+        # unescape "\\!" one level
+        : ${(A)a::=${a/(#m)(#s)\!?##/\~\*${MATCH[2,-1]}}}
+        : ${(A)a::=${a//(#m)'\!'/${MATCH[2,-1]}}} # XXX: not '\\!' though...
 
         # "^abc" -> "(#s)abc",
         # ("a^bc" should be held on, the beginning's "^" only be considered)
@@ -560,6 +572,14 @@ function _filter-select-buffer-words() {
         # smartcase searching ("(#i)(#I)Search" searches case sensitively)
         : ${(A)a::=${a/(#m)*[[:upper:]##]*/(#I)${MATCH}}}
         : ${(A)a::=(#i)${^a}}
+
+        # make "~" to be at the beginning
+        local match mbegin mend
+        : ${(A)a::=${a/#(#b)(\(\#i\)(\(\#I\))#)'~'/\~${match[1]}}}
+
+        # fixup the '!^'; "~(#i)*\^" -> "~(#i)(#s)"
+        # (for example, "!^aoe" -> "~(#i)*\^aoe" -> "~(#i)(#s)aoe")
+        : ${(A)a::=${a/#(#b)\~(\(\#i\)(\(\#I\))#)\*\\\^/\~${match[1]}(#s)}}
     fi
     : ${(PA)place::=$a}
     (( $#a > 1 )) || (( $#a == 1 )) && [[ -n "$a" ]]
