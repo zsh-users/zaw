@@ -556,6 +556,10 @@ function _filter-select-buffer-words() {
         # unescape "\\$" one level
         : ${(A)a::=${a/(#m)*[^\\]\$(#e)/${MATCH[1,-2]}(#e)}}
         : ${(A)a::=${a//(#m)'\$'/${MATCH[2,-1]}}} # XXX: not '\\$' though...
+
+        # smartcase searching ("(#i)(#I)Search" searches case sensitively)
+        : ${(A)a::=${a/(#m)*[[:upper:]##]*/(#I)${MATCH}}}
+        : ${(A)a::=(#i)${^a}}
     fi
     : ${(PA)place::=$a}
     (( $#a > 1 )) || (( $#a == 1 )) && [[ -n "$a" ]]
