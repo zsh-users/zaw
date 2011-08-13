@@ -376,10 +376,13 @@ function filter-select() {
 
                     if [[ -n "${BUFFER}" ]]; then
                         # highlight matched words
-                        pattern="(${(j:|:)words})"
-                        if [[ "$pattern" != '()' ]]; then
-                            region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
-                        fi
+                        for pattern in \
+                            "(${(j.|.)${(@M)words:#*'(#e)'}})" \
+                            "(${(j.|.)${(@)words:#*'(#e)'}})" ; do
+                            if [[ "$pattern" != '()' ]]; then
+                                region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
+                            fi
+                        done
                     fi
 
                     if (( is_marked )); then
@@ -525,19 +528,37 @@ function _filter-select-reset() {
 
 function _filter-select-buffer-words() {
     local place="$1"
-    local -a ws
+    local -a a
+    local MATCH MBEGIN MEND
     # split into words using shell's command line parsing,
     # unquote the words, remove duplicated,
     # escape "(", ")", "[", "]" and "#" to avoid crash
     # also escape "|"
-    local MATCH MBEGIN MEND
-    ws=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
+    a=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
 
-    : ${(PA)place::=$ws}
     if ((case_insensitive)); then
-      : ${(PA)place::=(#i)${^ws}}
+        : ${(A)a::=(#i)${^a}}
+    else
+        # remove single "^" like the history-incremental-pattern-searches'
+        : ${(A)a::=${a:#'^'}}
+
+        # escape "^" other than the beginning's
+        # unescape "\\^" one level
+        : ${(A)a::=${a//(#m)('^'~(#s)'^')/\\${MATCH}}}
+        : ${(A)a::=${a//(#m)'\\^'/${MATCH[2,-1]}}}
+
+        # "^abc" -> "(#s)abc",
+        # ("a^bc" should be held on, the beginning's "^" only be considered)
+        : ${(A)a::=${a/(#m)(#s)\^?##/(#s)${MATCH[2,-1]}}}
+
+        # "xyz$" -> "xyz(#e)",
+        # ("x$yz" shoud be held on, the ending's "$" only be considered)
+        # unescape "\\$" one level
+        : ${(A)a::=${a/(#m)*[^\\]\$(#e)/${MATCH[1,-2]}(#e)}}
+        : ${(A)a::=${a//(#m)'\$'/${MATCH[2,-1]}}} # XXX: not '\\$' though...
     fi
-    (( $#ws > 1 )) || (( $#ws == 1 )) && [[ -n "$ws" ]]
+    : ${(PA)place::=$a}
+    (( $#a > 1 )) || (( $#a == 1 )) && [[ -n "$a" ]]
 }
 
 function _filter-select-init-keybind() {
