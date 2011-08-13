@@ -84,12 +84,25 @@
 #   ':filter-select:highlight' title
 #   ':filter-select' max-lines
 #   ':filter-select' case-insensitive
+#   ':filter-select' extended-search
 #
 #   example:
 #     zstyle ':filter-select:highlight' matched fg=yellow,standout
 #     zstyle ':filter-select' max-lines 10 # use 10 lines for filter-select
 #     zstyle ':filter-select' max-lines -10 # use $LINES - 10 for filter-select
 #     zstyle ':filter-select' case-insensitive yes # enable case-insensitive search
+#     zstyle ':filter-select' extended-search yes # enable extended search regardless of the case-insensitive style
+#
+# extended-search:
+#     If this style set to be true value, the searching bahavior will be
+#     extended as follows:
+#
+#     ^ Match the beginning of the line if the word begins with ^
+#     $ Match the end of the line if the word ends with $
+#     ! Match anything except the word following it if the word begins with !
+#     so-called smartcase searching
+#
+#     If you want to search these metacharacters, please doubly escape them.
 
 function filter-select() {
     emulate -L zsh
@@ -123,14 +136,6 @@ function filter-select() {
 
     integer max_lines
     zstyle -s ':filter-select' max-lines max_lines || max_lines=0
-
-    local case_insensitive
-    zstyle -s ':filter-select' case-insensitive case_insensitive || case_insensitive=0
-    if [[ "${(L)case_insensitive}" == (no|false|f|0) ]]; then
-        case_insensitive=0
-    else
-        case_insensitive=1
-    fi
 
     _filter-select-init-keybind
 
@@ -536,8 +541,10 @@ function _filter-select-buffer-words() {
     # also escape "|" and "~"
     a=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|~]/\\${MATCH}}")
 
-    if ((case_insensitive)); then
-        : ${(A)a::=(#i)${^a}}
+    if ! zstyle -t ':filter-select' extended-search ; then
+        if zstyle -t ':filter-select' case-insensitive; then
+            : ${(A)a::=(#i)${^a}}
+        fi
     else
         # remove single "\\", "!",
         # "^" like the history-incremental-pattern-searches',
