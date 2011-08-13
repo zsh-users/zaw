@@ -533,25 +533,21 @@ function _filter-select-buffer-words() {
     # split into words using shell's command line parsing,
     # unquote the words, remove duplicated,
     # escape "(", ")", "[", "]" and "#" to avoid crash
-    # also escape "|"
-    a=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
+    # also escape "|" and "~"
+    a=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|~]/\\${MATCH}}")
 
     if ((case_insensitive)); then
         : ${(A)a::=(#i)${^a}}
     else
-        # remove single "^" like the history-incremental-pattern-searches',
-        # "~", "!", "\\" and "!^".
-        : ${(A)a::=${a:#([~!^\\]|'!^')}}
+        # remove single "\\", "!",
+        # "^" like the history-incremental-pattern-searches',
+        # and "!^".
+        : ${(A)a::=${a:#([\\!^]|'!^')}}
 
         # escape "^" other than the beginning's
         # unescape "\\^" one level
         : ${(A)a::=${a//(#m)('^'~(#s)'^')/\\${MATCH}}}
         : ${(A)a::=${a//(#m)'\\^'/${MATCH#\\}}}
-
-        # escape "~" other than the beginning's
-        # unescape "\\~" one level
-        : ${(A)a::=${a//(#m)('~'~(#s)'~')/\\${MATCH}}}
-        : ${(A)a::=${a//(#m)'\\~'/${MATCH#\\}}}
 
         # "!aoe" -> "~*aoe",
         # ("a!oe" should be held on, the beginning's "!" only be considered)
