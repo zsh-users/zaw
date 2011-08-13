@@ -546,40 +546,43 @@ function _filter-select-buffer-words() {
         # escape "^" other than the beginning's
         # unescape "\\^" one level
         : ${(A)a::=${a//(#m)('^'~(#s)'^')/\\${MATCH}}}
-        : ${(A)a::=${a//(#m)'\\^'/${MATCH[2,-1]}}}
+        : ${(A)a::=${a//(#m)'\\^'/${MATCH#\\}}}
 
         # escape "~" other than the beginning's
         # unescape "\\~" one level
         : ${(A)a::=${a//(#m)('~'~(#s)'~')/\\${MATCH}}}
-        : ${(A)a::=${a//(#m)'\\~'/${MATCH[2,-1]}}}
+        : ${(A)a::=${a//(#m)'\\~'/${MATCH#\\}}}
 
         # "!aoe" -> "~*aoe",
         # ("a!oe" should be held on, the beginning's "!" only be considered)
         # unescape "\\!" one level
-        : ${(A)a::=${a/(#m)(#s)\!?##/\~\*${MATCH[2,-1]}}}
-        : ${(A)a::=${a//(#m)'\!'/${MATCH[2,-1]}}} # XXX: not '\\!' though...
+        : ${(A)a::=${a/(#m)(#s)\!?##/\~\*${MATCH#\!}}}
+        : ${(A)a::=${a//(#m)'\!'/${MATCH#\\}}} # XXX: not '\\!' though...
 
         # "^abc" -> "(#s)abc",
         # ("a^bc" should be held on, the beginning's "^" only be considered)
-        : ${(A)a::=${a/(#m)(#s)\^?##/(#s)${MATCH[2,-1]}}}
+        : ${(A)a::=${a/(#m)(#s)\^?##/(#s)${MATCH#\^}}}
 
         # "xyz$" -> "xyz(#e)",
         # ("x$yz" shoud be held on, the ending's "$" only be considered)
         # unescape "\\$" one level
-        : ${(A)a::=${a/(#m)*[^\\]\$(#e)/${MATCH[1,-2]}(#e)}}
-        : ${(A)a::=${a//(#m)'\$'/${MATCH[2,-1]}}} # XXX: not '\\$' though...
+        : ${(A)a::=${a/(#m)*[^\\]\$(#e)/${MATCH%\$}(#e)}}
+        : ${(A)a::=${a//(#m)'\$'/${MATCH#\\}}} # XXX: not '\\$' though...
 
         # smartcase searching ("(#i)(#I)Search" searches case sensitively)
         : ${(A)a::=${a/(#m)*[[:upper:]##]*/(#I)${MATCH}}}
         : ${(A)a::=(#i)${^a}}
 
         # make "~" to be at the beginning
-        local match mbegin mend
-        : ${(A)a::=${a/#(#b)(\(\#i\)(\(\#I\))#)'~'/\~${match[1]}}}
+        #: ${(A)a::=${a/#(#b)('(#i)'('(#I)')#)'~'/\~${match[1]}}}
+        : ${(A)a::=${a/#'(#i)(#I)~'/\~(#i)(#I)}}
+        : ${(A)a::=${a/#'(#i)~'/\~(#i)}}
 
         # fixup the '!^'; "~(#i)*\^" -> "~(#i)(#s)"
         # (for example, "!^aoe" -> "~(#i)*\^aoe" -> "~(#i)(#s)aoe")
-        : ${(A)a::=${a/#(#b)\~(\(\#i\)(\(\#I\))#)\*\\\^/\~${match[1]}(#s)}}
+        #: ${(A)a::=${a/#(#b)'~'('(#i)'('(#I)')#)'*\^'/\~${match[1]}(#s)}}
+        : ${(A)a::=${a/#'~(#i)(#I)*\^'/'~(#i)(#I)(#s)'}}
+        : ${(A)a::=${a/#'~(#i)*\^'/'~(#i)(#s)'}}
     fi
     : ${(PA)place::=$a}
     (( $#a > 1 )) || (( $#a == 1 )) && [[ -n "$a" ]]
