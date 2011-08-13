@@ -316,23 +316,15 @@ function filter-select() {
 
             if [[ "${BUFFER}" != "${last_buffer}" ]]; then
                 if [[ -n "${BUFFER}" ]]; then
-                    _filter-select-buffer-words
-                    pattern="${words[1]}"
-                    if (( case_insensitive )); then
-                        matched_descs=("${(kv@)descriptions[(R)(#i)*${pattern}*]}")
-                    else
-                        matched_descs=("${(kv@)descriptions[(R)*${pattern}*]}")
-                    fi
-
-                    for pattern in "${(@)words[2,-1]}"; do
-                        if (( case_insensitive )); then
-                            matched_descs=("${(kv@)matched_descs[(R)(#i)*${pattern}*]}")
-                        else
+                    if _filter-select-buffer-words words; then
+                        matched_descs=("${(kv@)descriptions}")
+                        for pattern in $words; do
                             matched_descs=("${(kv@)matched_descs[(R)*${pattern}*]}")
-                        fi
-                    done
-
-                    matched_desc_keys=("${(onk@)matched_descs}")
+                        done
+                        matched_desc_keys=("${(onk@)matched_descs}")
+                    else
+                        matched_desc_keys=("${(onk@)descriptions}")
+                    fi
                 else
                     matched_desc_keys=("${(onk@)descriptions}")
                 fi
@@ -350,8 +342,6 @@ function filter-select() {
 
             _filter-select-update-bottom-lines
             display_bottom_line=$(( display_head_line + bottom_lines))
-
-            pattern="(${(j:|:)words})"
 
             if (( desc_num )); then
                 for i in "${(@)matched_desc_keys[${display_head_line},$(( display_bottom_line - 1 ))]}"; do
@@ -386,9 +376,8 @@ function filter-select() {
 
                     if [[ -n "${BUFFER}" ]]; then
                         # highlight matched words
-                        if (( case_insensitive )); then
-                            region_highlight+=( "${(f)${(S)desc_disp//*(#bi)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
-                        else
+                        pattern="(${(j:|:)words})"
+                        if [[ "$pattern" != '()' ]]; then
                             region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
                         fi
                     fi
@@ -535,12 +524,20 @@ function _filter-select-reset() {
 }
 
 function _filter-select-buffer-words() {
+    local place="$1"
+    local -a ws
     # split into words using shell's command line parsing,
     # unquote the words, remove duplicated,
     # escape "(", ")", "[", "]" and "#" to avoid crash
     # also escape "|"
     local MATCH MBEGIN MEND
-    words=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
+    ws=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
+
+    : ${(PA)place::=$ws}
+    if ((case_insensitive)); then
+      : ${(PA)place::=(#i)${^ws}}
+    fi
+    (( $#ws > 1 )) || (( $#ws == 1 )) && [[ -n "$ws" ]]
 }
 
 function _filter-select-init-keybind() {
