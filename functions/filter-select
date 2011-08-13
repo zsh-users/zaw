@@ -316,12 +316,7 @@ function filter-select() {
 
             if [[ "${BUFFER}" != "${last_buffer}" ]]; then
                 if [[ -n "${BUFFER}" ]]; then
-                    # split into words using shell's command line parsing,
-                    # unquote the words, remove duplicated,
-                    # escape "(", ")", "[", "]" and "#" to avoid crash
-                    # also escape "|"
-                    words=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
-
+                    _filter-select-buffer-words
                     pattern="${words[1]}"
                     if (( case_insensitive )); then
                         matched_descs=("${(kv@)descriptions[(R)(#i)*${pattern}*]}")
@@ -537,6 +532,15 @@ function _filter-select-reset() {
     cursor_line=1
     _filter-select-update-lines
     _filter-select-update-bottom-lines
+}
+
+function _filter-select-buffer-words() {
+    # split into words using shell's command line parsing,
+    # unquote the words, remove duplicated,
+    # escape "(", ")", "[", "]" and "#" to avoid crash
+    # also escape "|"
+    local MATCH MBEGIN MEND
+    words=("${(@)${(@Qu)${(z)BUFFER}}//(#m)[()[\]#\|]/\\${MATCH}}")
 }
 
 function _filter-select-init-keybind() {
