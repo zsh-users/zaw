@@ -7,7 +7,7 @@ install
 
 ::
 
-  $ git clone git://github.com/nakamuray/zaw.git
+  $ git clone git://github.com/zsh-users/zaw.git
   remote: Counting objects: 136, done.
   remote: Compressing objects: 100% (86/86), done.
   remote: Total 136 (delta 43), reused 136 (delta 43)
@@ -102,12 +102,25 @@ and these zstyles to customize styles::
   ':filter-select:highlight' title
   ':filter-select' max-lines
   ':filter-select' case-insensitive
+  ':filter-select' extended-search
 
   example:
     zstyle ':filter-select:highlight' matched fg=yellow,standout
     zstyle ':filter-select' max-lines 10 # use 10 lines for filter-select
     zstyle ':filter-select' max-lines -10 # use $LINES - 10 for filter-select
     zstyle ':filter-select' case-insensitive yes # enable case-insensitive search
+    zstyle ':filter-select' extended-search yes # see below
+
+  extended-search:
+      If this style set to be true value, the searching bahavior will be
+      extended as follows:
+  
+      ^ Match the beginning of the line if the word begins with ^
+      $ Match the end of the line if the word ends with $
+      ! Match anything except the word following it if the word begins with !
+      so-called smartcase searching
+  
+      If you want to search these metacharacters, please doubly escape them.
 
 license
 =======
