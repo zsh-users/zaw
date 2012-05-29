@@ -21,11 +21,10 @@ and restart zsh or manualy source ``zaw.zsh``.
 usage
 =====
 
-press ``^X;``,
-
-1. select `source` and press ``enter``.
-2. filter items with zsh patterns separated by spaces, use ``^N``, ``^P`` and select one.
-3. execute action by pressing enter key or press Meta + enter for alternative action.
+1. Trigger `zaw` by pressing ``Ctrl-x ;`` (``^x;``).
+2. select `source` and press ``enter``.
+3. filter items with zsh patterns separated by spaces, use ``^N``, ``^P`` and select one.
+4. execute action by pressing enter key or press ``Meta-enter`` for alternative action.
 
    instead, press tab key and select action you want to execute.
 
@@ -43,6 +42,7 @@ currently these sources are available:
   - open-file
   - perldoc
   - screens
+  - tmux
 
 
 shortcut widgets
@@ -67,6 +67,7 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   open-file        zaw-open-file
   perldoc          zaw-perldoc
   screens          zaw-screens
+  tmux             zaw-tmux
 
 
 key binds and styles
