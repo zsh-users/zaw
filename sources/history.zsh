@@ -1,10 +1,18 @@
 zmodload zsh/parameter
 
 function zaw-src-history() {
-    cands_assoc=("${(@kv)history}")
+    if (( ZAW_HISTORY_LIMIT > 0 )); then
+        # use last $ZAW_HISTORY_LIMIT lines
+        candidates=("${(@v)history:0:${ZAW_HISTORY_LIMIT}}")
+        options=("-m")
+    else
+        # use all history
+        cands_assoc=("${(@kv)history}")
+        options=("-m" "-r")
+    fi
+
     actions=("zaw-callback-execute" "zaw-callback-replace-buffer" "zaw-callback-append-to-buffer")
     act_descriptions=("execute" "replace edit buffer" "append to edit buffer")
-    options=("-r" "-m")
 
     if (( $+functions[zaw-bookmark-add] )); then
         # zaw-src-bookmark is available
