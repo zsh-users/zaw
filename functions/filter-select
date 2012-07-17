@@ -23,7 +23,7 @@
 # usage:
 #   filter-select [-t title] [-A assoc-array-name]
 #                 [-d array-of-description] [-D assoc-array-of-descrption]
-#                 [-r] [-m] [-e exit-zle-widget-name]... [--] [arg]...
+#                 [-n] [-r] [-m] [-e exit-zle-widget-name]... [--] [arg]...
 #   filter-select -i
 #
 #     -t title
@@ -38,6 +38,9 @@
 #       it is used to display and filter candidates.
 #
 #       if not specified, copied from candidates.
+#
+#     -n
+#       assign a number to the description when -d is not specified
 #
 #     -D assoc-array-of-descrption
 #       same as ``-d`` but associative array.
@@ -143,7 +146,7 @@ function filter-select() {
     descriptions=()
     exit_wigdets=(accept-line accept-search send-break)
 
-    while getopts 't:A:d:D:rme:i' opt; do
+    while getopts 't:A:d:D:nrme:i' opt; do
         case "${opt}" in
             t)
                 title="${OPTARG}"
@@ -163,6 +166,9 @@ function filter-select() {
             D)
                 # copy input assc array
                 descriptions=("${(@kvP)${OPTARG}}")
+                ;;
+            n)
+                enumelate_description=1
                 ;;
             r)
                 # reverse ordering
@@ -193,6 +199,18 @@ function filter-select() {
     if (( $#descriptions == 0 )); then
         # copy candidates
         descriptions=("${(@kv)candidates}")
+        # add number
+        if (( enumelate_description )); then
+            integer nnn="${#descriptions}"
+            for i in {1.."$nnn"}; do
+                if (( rev )); then
+                    ii="$(($nnn-$i+1))"
+                else
+                    ii="$i"
+                fi
+                descriptions[$i]="${(r.5.)ii} ${descriptions[$i]}"
+            done
+        fi
     fi
 
     desc_num="${#descriptions}"
