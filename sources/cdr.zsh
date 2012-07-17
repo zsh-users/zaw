@@ -7,7 +7,7 @@
 (( $+functions[cdr] )) || return
 
 function zaw-src-cdr () {
-    : ${(A)candidates::=${${(f)"$(cdr -l)"}##<-> ##}}
+    : ${(A)candidates::=${${(f)"$(cdr -l | awk '{print $2}')"}##<-> ##}}
     actions=(zaw-src-cdr-cd zaw-src-cdr-insert zaw-src-cdr-prune)
     act_descriptions=("cd" "insert" "prune")
     options+=(-m)
