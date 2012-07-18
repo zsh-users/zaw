@@ -7,6 +7,7 @@
 (( $+functions[cdr] )) || return
 
 function zaw-src-cdr () {
+    setopt local_options extended_glob
     : ${(A)candidates::=${${(f)"$(cdr -l)"}##<-> ##}}
     actions=(zaw-src-cdr-cd zaw-src-cdr-insert zaw-src-cdr-prune)
     act_descriptions=("cd" "insert" "prune")
