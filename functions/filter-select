@@ -23,7 +23,7 @@
 # usage:
 #   filter-select [-t title] [-A assoc-array-name]
 #                 [-d array-of-description] [-D assoc-array-of-descrption]
-#                 [-r] [-m] [-e exit-zle-widget-name]... [--] [arg]...
+#                 [-n] [-r] [-m] [-e exit-zle-widget-name]... [--] [arg]...
 #   filter-select -i
 #
 #     -t title
@@ -38,6 +38,9 @@
 #       it is used to display and filter candidates.
 #
 #       if not specified, copied from candidates.
+#
+#     -n
+#       assign a number to the description when -d is not specified
 #
 #     -D assoc-array-of-descrption
 #       same as ``-d`` but associative array.
@@ -124,8 +127,8 @@ function filter-select() {
     local -a init_region_highlight marked_lines
     local -A candidates descriptions matched_descs
 
-    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num
-    integer offset display_bottom_line selected_num rev=0 ret=0
+    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num ii num_desc
+    integer offset display_bottom_line selected_num rev=0 ret=0 enum=0
     integer mark_idx markable=0 is_marked
 
     local hi_selected hi_matched hi_marked hi_title
@@ -143,7 +146,7 @@ function filter-select() {
     descriptions=()
     exit_wigdets=(accept-line accept-search send-break)
 
-    while getopts 't:A:d:D:rme:i' opt; do
+    while getopts 't:A:d:D:nrme:i' opt; do
         case "${opt}" in
             t)
                 title="${OPTARG}"
@@ -163,6 +166,9 @@ function filter-select() {
             D)
                 # copy input assc array
                 descriptions=("${(@kvP)${OPTARG}}")
+                ;;
+            n)
+                enum=1
                 ;;
             r)
                 # reverse ordering
@@ -193,6 +199,18 @@ function filter-select() {
     if (( $#descriptions == 0 )); then
         # copy candidates
         descriptions=("${(@kv)candidates}")
+        # add number
+        if (( enum )); then
+            num_desc="${#descriptions}"
+            for i in {1.."$num_desc"}; do
+                if (( rev )); then
+                    ii="$(($num_desc-$i+1))"
+                else
+                    ii="$i"
+                fi
+                descriptions[$i]="${(r.5.)ii} ${descriptions[$i]}"
+            done
+        fi
     fi
 
     desc_num="${#descriptions}"
