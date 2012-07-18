@@ -127,8 +127,8 @@ function filter-select() {
     local -a init_region_highlight marked_lines
     local -A candidates descriptions matched_descs
 
-    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num
-    integer offset display_bottom_line selected_num rev=0 ret=0
+    integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num ii num_desc
+    integer offset display_bottom_line selected_num rev=0 ret=0 enum=0
     integer mark_idx markable=0 is_marked
 
     local hi_selected hi_matched hi_marked hi_title
@@ -168,7 +168,7 @@ function filter-select() {
                 descriptions=("${(@kvP)${OPTARG}}")
                 ;;
             n)
-                enumelate_description=1
+                enum=1
                 ;;
             r)
                 # reverse ordering
@@ -200,11 +200,11 @@ function filter-select() {
         # copy candidates
         descriptions=("${(@kv)candidates}")
         # add number
-        if (( enumelate_description )); then
-            integer nnn="${#descriptions}"
-            for i in {1.."$nnn"}; do
+        if (( enum )); then
+            num_desc="${#descriptions}"
+            for i in {1.."$num_desc"}; do
                 if (( rev )); then
-                    ii="$(($nnn-$i+1))"
+                    ii="$(($num_desc-$i+1))"
                 else
                     ii="$i"
                 fi
