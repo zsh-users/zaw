@@ -38,6 +38,7 @@ currently these sources are available:
   - applications
   - bookmark
   - git-files
+  - git-branches
   - history
   - open-file
   - perldoc
