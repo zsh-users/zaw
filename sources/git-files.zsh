@@ -1,24 +1,39 @@
-# zaw source for git files 
+# zaw source for git files
 
 function zaw-src-git-files() {
-    local modifies
-    integer i j cand_l modi_l
+    local modifies unsorted_candidates
+    integer i j k cand_l modi_l
     git rev-parse --git-dir >/dev/null 2>&1
     if [[ $? == 0 ]]; then
-        : ${(A)candidates::=${(f)"$(git ls-files $(git rev-parse --show-cdup))"}}
+        : ${(A)unsorted_candidates::=${(f)"$(git ls-files $(git rev-parse --show-cdup))"}}
         : ${(A)modifies::=${(f)"$(git ls-files $(git rev-parse --show-cdup) --modified)"}}
-        : ${(A)cand_descriptions::=${(f)"$(git ls-files $(git rev-parse --show-cdup))"}}
-        cand_l=${#candidates}
+        cand_l=${#unsorted_candidates}
         modi_l=${#modifies}
-    fi
+        if [[ "$modifies[$modi_l]" != "" ]]; then
+            for i in {1..$modi_l}; do
+                candidates[$i]="${modifies[$i]}"
+                cand_descriptions[$i]="${modifies[$i]}              MODIFIED"
+            done
+            k=`expr "$modi_l" + 1`
+        else
+            k=1
+        fi
     # This dual loop may be somewhat heavy.
-    for i in {1..$modi_l}; do
-        for j in {1..$cand_l}; do
-            if [[ "${modifies[$i]}" == "${candidates[$j]}" ]]; then
-                cand_descriptions[$j]="${cand_descriptions[$j]}     MODIFIED"
-            fi
+        for i in {1..$cand_l}; do
+            for j in {1..$modi_l}; do
+                if [[ "${modifies[$j]}" == "${unsorted_candidates[$i]}" ]]; then
+                    break
+                fi
+                if [[ "$j" == "$modi_l" ]]; then
+                    candidates[$k]="${unsorted_candidates[$i]}"
+                    cand_descriptions[$k]="${unsorted_candidates[$i]}"
+                    k=`expr "$k" + 1`
+                fi
+            done
         done
-    done
+    fi
+
+
     actions=("zaw-callback-edit-file" "zaw-src-git-files-add" "zaw-callback-append-to-buffer")
     act_descriptions=("edit file" "add" "append to edit buffer")
     options=(-m -n)
