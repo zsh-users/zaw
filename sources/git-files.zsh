@@ -11,13 +11,13 @@ function zaw-src-git-files() {
             raw_candidates=$all_files
             raw_cand_descriptions=$all_files
         else
-            mod_description=$(echo $modified | awk '{print $0 "                   MODIFIED"}')
-            all_without_modified=$(echo "${modified}\\n${all_files}" |sort |uniq -u )
-            raw_candidates=$(echo "${modified}\\n${all_without_modified}")
-            raw_cand_descriptions=$(echo "${mod_description}\\n${all_without_modified}")
+            mod_description=$(awk '{print $0 "                   MODIFIED"}' <<< "$modified" )
+            all_without_modified=$(echo -e "${modified}\n${all_files}" | sort |uniq -u )
+            raw_candidates=$(echo -e "${modified}\n${all_without_modified}")
+            raw_cand_descriptions=$(echo -e "${mod_description}\n${all_without_modified}")
         fi
-        : ${(A)candidates::=${(f)"$(echo $raw_candidates)"}}
-        : ${(A)cand_descriptions::=${(f)"$(echo $raw_cand_descriptions)"}}
+        : ${(A)candidates::=${(f)raw_candidates}}
+        : ${(A)cand_descriptions::=${(f)raw_cand_descriptions}}
 
     fi
 

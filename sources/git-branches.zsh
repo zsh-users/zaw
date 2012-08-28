@@ -3,7 +3,7 @@
 function zaw-src-git-branches() {
     git rev-parse --git-dir >/dev/null 2>&1
     if [[ $? == 0 ]]; then
-        local branches_list="$(git show-ref | awk '{ print $2}' |sed '/^refs\/stash$/d')"
+        local branches_list="$(git show-ref | awk ' $2 != "refs/stash" { print $2 }' )"
         : ${(A)candidates::=${${(f)${branches_list}}#refs/}}
         : ${(A)cand_descriptions::=${${(f)${branches_list}}#refs/(remotes|heads|tags)/}}
     fi
@@ -15,13 +15,16 @@ function zaw-src-git-branches() {
 function zaw-src-git-branches-checkout () {
     local b_type=${1%%/*}
     local b_name=${1#(heads|remotes|tags)/}
-    if [[ "$b_type" == "heads" ]]; then
-        BUFFER="git checkout $b_name"
-        zle accept-line
-    else
-        BUFFER="git checkout -t $b_name"
-        zle accept-line
-    fi
+    case "$b_type" in
+        "heads"|"tags")
+            BUFFER="git checkout $b_name"
+            zle accept-line
+            ;;
+        "remotes")
+            BUFFER="git checkout -t $b_name"
+            zle accept-line
+            ;;
+    esac
 }
 
 function zaw-src-git-branches-create () {
