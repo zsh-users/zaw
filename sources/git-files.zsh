@@ -31,7 +31,7 @@ function zaw-src-git-files-classify-aux() {
     else
         os=(${as:#(${(~j.|.)ms})}) # TODO: too slower for large work tree
     fi
-    candidates=($os)
+    candidates=($ms $os)
 
     : ${(A)ds::=${ms/%/                   MODIFIED}}
     ds+=($os)
