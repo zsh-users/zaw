@@ -1,24 +1,14 @@
 # zaw source for git files
 
-function zaw-src-git-files() {
-    local all_files modified raw_candidates raw_cand_descriptions
-    local all_without_modified mod_description
+function zaw-src-git-files-raw() {
     git rev-parse --git-dir >/dev/null 2>&1
-    if [[ $? == 0 ]]; then
-        all_files=$(git ls-files $(git rev-parse --show-cdup))
-        modified=$(git ls-files $(git rev-parse --show-cdup) --modified)
-        if [[ $modified == "" ]]; then
-            raw_candidates=$all_files
-            raw_cand_descriptions=$all_files
-        else
-            mod_description=$(awk '{print $0 "                   MODIFIED"}' <<< "$modified" )
-            all_without_modified=$(echo -e "${modified}\n${all_files}" | sort |uniq -u )
-            raw_candidates=$(echo -e "${modified}\n${all_without_modified}")
-            raw_cand_descriptions=$(echo -e "${mod_description}\n${all_without_modified}")
-        fi
-        : ${(A)candidates::=${(f)raw_candidates}}
-        : ${(A)cand_descriptions::=${(f)raw_cand_descriptions}}
+    if (( $? != 0 )); then
+        return $?
+    fi
 
+    "$1"
+    if (( $? != 0 )); then
+        return $?
     fi
 
     actions=("zaw-callback-edit-file" "zaw-src-git-files-add" "zaw-callback-append-to-buffer")
@@ -26,9 +16,46 @@ function zaw-src-git-files() {
     options=(-m -n)
 }
 
+function zaw-src-git-files-classify-aux() {
+    local -a as ms ds os
+    : ${(A)as::=${(0)"$(git ls-files $(git rev-parse --show-cdup) -z)"}}
+    : ${(A)ms::=${(0)"$(git ls-files $(git rev-parse --show-cdup) -z -m)"}}
+    if (( $#ms == 0 )) || (( $#ms == 1 )) &&  [[ -z "$ms" ]]; then
+        candidates=($as)
+        return 0
+    fi
+
+    if is-at-least 5.0.0 || [[ -n "${ZSH_PATCHLEVEL-}" ]] && \
+       is-at-least 1.5637 "$ZSH_PATCHLEVEL"; then
+        os=(${as:|ms})
+    else
+        os=(${as:#(${(~j.|.)ms})}) # TODO: too slower for large work tree
+    fi
+    candidates=($os)
+
+    : ${(A)ds::=${ms/%/                   MODIFIED}}
+    ds+=($os)
+    cand_descriptions=($ds)
+    return 0
+}
+
+function zaw-src-git-files-legacy-aux() {
+    : ${(A)candidates::=${(0)"$(git ls-files $(git rev-parse --show-cdup) -z)"}}
+    return 0
+}
+
 function zaw-src-git-files-add () {
     BUFFER="git add $1"
     zle accept-line
 }
 
-zaw-register-src -n git-files zaw-src-git-files
+{
+    function R() {
+        eval "function $2 () { zaw-src-git-files-raw "$3" }"
+        zaw-register-src -n "$1" "$2"
+    }
+    R git-files zaw-src-git-files zaw-src-git-files-classify-aux
+    R git-files-legacy zaw-src-git-files-legacy{,-aux}
+} always {
+    unfunction R
+}
