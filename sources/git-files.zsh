@@ -50,12 +50,12 @@ function zaw-src-git-files-add () {
 }
 
 {
-    function R() {
+    function zaw-src-git-files-register-src() {
         eval "function $2 () { zaw-src-git-files-raw "$3" }"
         zaw-register-src -n "$1" "$2"
     }
-    R git-files zaw-src-git-files zaw-src-git-files-classify-aux
-    R git-files-legacy zaw-src-git-files-legacy{,-aux}
+    zaw-src-git-files-register-src git-files zaw-src-git-files zaw-src-git-files-classify-aux
+    zaw-src-git-files-register-src git-files-legacy zaw-src-git-files-legacy{,-aux}
 } always {
-    unfunction R
+    unfunction zaw-src-git-files-register-src
 }
