@@ -1,19 +1,23 @@
 # zaw source for git files
 
 function zaw-src-git-files-raw() {
+    local ret=0
     git rev-parse --git-dir >/dev/null 2>&1
-    if (( $? != 0 )); then
-        return $?
+    ret=$?
+    if (( ret != 0 )); then
+        return ret
     fi
 
     "$1"
-    if (( $? != 0 )); then
-        return $?
+    ret=$?
+    if (( ret != 0 )); then
+        return ret
     fi
 
     actions=("zaw-callback-edit-file" "zaw-src-git-files-add" "zaw-callback-append-to-buffer")
     act_descriptions=("edit file" "add" "append to edit buffer")
     options=(-m -n)
+    return 0
 }
 
 function zaw-src-git-files-classify-aux() {
