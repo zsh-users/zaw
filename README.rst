@@ -38,6 +38,7 @@ currently these sources are available:
   - applications
   - bookmark
   - git-files
+  - git-files-legacy
   - git-branches
   - history
   - open-file
@@ -45,6 +46,9 @@ currently these sources are available:
   - screens
   - tmux
 
+(Note: git-files-legacy is an alternative for git-files.
+git-files classifies modified files, git-files-legacy doesn't do it for
+performance reason.)
 
 shortcut widgets
 ================
@@ -64,6 +68,7 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   applications     zaw-applications
   bookmark         zaw-bookmark
   git-files        zaw-git-files
+  git-files-legacy zaw-git-files-legacy
   history          zaw-history
   open-file        zaw-open-file
   perldoc          zaw-perldoc
