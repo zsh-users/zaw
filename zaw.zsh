@@ -139,7 +139,9 @@ function zaw() {
                 ;;
         esac
 
-        "${action}" "${(@)selected}"
+        if [[ -n "${action}" ]]; then
+            "${action}" "${(@)selected}"
+        fi
     fi
 }
 
