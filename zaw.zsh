@@ -199,9 +199,10 @@ function zaw-callback-edit-file() {
 
 
 # load zaw sources
+setopt local_options extended_glob
 local src_dir="${cur_dir}/sources" f
 if [[ -d "${src_dir}" ]]; then
-    for f ("${src_dir}"/*) source "${f}"
+    for f ("${src_dir}"/^*.zwc) source "${f}"
 fi
 
 # dummy function

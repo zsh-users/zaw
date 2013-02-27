@@ -86,6 +86,7 @@
 #   ':filter-select:highlight' matched
 #   ':filter-select:highlight' title
 #   ':filter-select' max-lines
+#   ':filter-select' rotate-list
 #   ':filter-select' case-insensitive
 #   ':filter-select' extended-search
 #
@@ -93,6 +94,7 @@
 #     zstyle ':filter-select:highlight' matched fg=yellow,standout
 #     zstyle ':filter-select' max-lines 10 # use 10 lines for filter-select
 #     zstyle ':filter-select' max-lines -10 # use $LINES - 10 for filter-select
+#     zstyle ':filter-select' rotate-list yes # enable rotation for filter-select
 #     zstyle ':filter-select' case-insensitive yes # enable case-insensitive search
 #     zstyle ':filter-select' extended-search yes # enable extended search regardless of the case-insensitive style
 #
@@ -139,6 +141,9 @@ function filter-select() {
 
     integer max_lines
     zstyle -s ':filter-select' max-lines max_lines || max_lines=0
+
+    local rotate_list
+    zstyle -b ':filter-select' rotate-list rotate_list
 
     _filter-select-init-keybind
 
@@ -311,7 +316,12 @@ function filter-select() {
             if (( display_head_line < 1 )); then
                 (( display_head_line = 1 ))
             fi
-            (( cursor_line = 1 ))
+            if [[ $rotate_list == "yes" ]] && (( selected_num <= 1 )); then
+                (( cursor_line = bottom_lines ))
+                (( display_head_line = desc_num - bottom_lines + 1 ))
+            else
+                (( cursor_line = 1 ))
+            fi
 
         elif (( bottom_lines == 0 )); then
             (( display_head_line = 1 ))
@@ -322,7 +332,12 @@ function filter-select() {
             if (( display_head_line > desc_num - bottom_lines + 1 )); then
                 (( display_head_line = desc_num - bottom_lines + 1 ))
             fi
-            (( cursor_line = bottom_lines ))
+            if [[ $rotate_list == "yes" ]] && (( selected_num >= desc_num )); then
+                (( cursor_line = 1 ))
+                (( display_head_line = 1 ))
+            else
+                (( cursor_line = bottom_lines ))
+            fi
         fi
 
         if (( ! PENDING )); then
