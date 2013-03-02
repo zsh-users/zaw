@@ -7,8 +7,8 @@ function zaw-src-git-branches() {
         : ${(A)candidates::=${${(f)${branches_list}}#refs/}}
         : ${(A)cand_descriptions::=${${(f)${branches_list}}#refs/(remotes|heads|tags)/}}
     fi
-    actions=(zaw-src-git-branches-checkout zaw-callback-append-to-buffer zaw-src-git-branches-merge zaw-src-git-branches-merge-no-ff zaw-src-git-branches-merge-to zaw-src-git-branches-reset zaw-src-git-branches-create zaw-src-git-branches-delete)
-    act_descriptions=("check out" "append to edit buffer" "merge" "merge no ff" "merge to" "reset" "create new branch from..." "delete")
+    actions=(zaw-src-git-branches-checkout zaw-callback-append-to-buffer zaw-src-git-branches-simple-checkout zaw-src-git-branches-merge zaw-src-git-branches-merge-no-ff zaw-src-git-branches-merge-to zaw-src-git-branches-reset zaw-src-git-branches-create zaw-src-git-branches-delete)
+    act_descriptions=("check out" "append to edit buffer" "simple check out" "merge" "merge no ff" "merge to" "reset" "create new branch from..." "delete")
     options=()
 }
 
@@ -25,6 +25,12 @@ function zaw-src-git-branches-checkout () {
             zle accept-line
             ;;
     esac
+}
+
+function zaw-src-git-branches-simple-checkout () {
+    local b_name=${1#(heads|remotes|tags)/}
+    BUFFER="git checkout $b_name"
+    zle accept-line
 }
 
 function zaw-src-git-branches-create () {
