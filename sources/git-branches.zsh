@@ -7,8 +7,8 @@ function zaw-src-git-branches() {
         : ${(A)candidates::=${${(f)${branches_list}}#refs/}}
         : ${(A)cand_descriptions::=${${(f)${branches_list}}#refs/(remotes|heads|tags)/}}
     fi
-    actions=(zaw-src-git-branches-checkout zaw-callback-append-to-buffer zaw-src-git-branches-simple-checkout zaw-src-git-branches-merge zaw-src-git-branches-merge-no-ff zaw-src-git-branches-merge-to zaw-src-git-branches-reset zaw-src-git-branches-create zaw-src-git-branches-reset-hard zaw-src-git-branches-delete)
-    act_descriptions=("check out" "append to edit buffer" "simple check out" "merge" "merge no ff" "merge to" "reset" "create new branch from..." "reset hard" "delete")
+    actions=(zaw-src-git-branches-checkout zaw-src-git-branches-simple-checkout zaw-src-git-branches-merge zaw-src-git-branches-merge-rebase zaw-src-git-branches-merge-no-ff zaw-src-git-branches-merge-to zaw-src-git-branches-reset zaw-callback-append-to-buffer zaw-src-git-branches-create zaw-src-git-branches-reset-hard zaw-src-git-branches-delete)
+    act_descriptions=("check out" "simple check out" "merge" "merge rebase" "merge no ff" "merge to" "reset" "append to edit buffer"  "create new branch from..." "reset hard" "delete")
     options=()
 }
 
@@ -43,6 +43,13 @@ function zaw-src-git-branches-merge () {
     local b_type=${1%%/*}
     local b_name=${1#(heads|remotes|tags)/}
     BUFFER="git merge $b_name"
+    zle accept-line
+}
+
+function zaw-src-git-branches-merge-rebase () {
+    local b_type=${1%%/*}
+    local b_name=${1#(heads|remotes|tags)/}
+    BUFFER="git merge --rebase $b_name"
     zle accept-line
 }
 
