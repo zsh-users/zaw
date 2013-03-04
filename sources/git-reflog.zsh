@@ -8,7 +8,7 @@ function zaw-src-git-reflog () {
             done
     fi
     actions=(zaw-callback-append-to-buffer zaw-src-git-commit-checkout zaw-src-git-commit-reset zaw-src-git-commit-reset-hard)
-    act_descriptions=("append to edit buffer" "checkout" "reset" "resethard")
+    act_descriptions=("append to edit buffer" "checkout" "reset" "reset hard")
     options=()
 }
 
@@ -22,7 +22,7 @@ function zaw-src-git-commit-reset () {
     zle accept-line
 }
 
-function zaw-src-git-commit-reset () {
+function zaw-src-git-commit-reset-hard () {
     BUFFER="git reset --hard $1"
     zle accept-line
 }
