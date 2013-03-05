@@ -7,8 +7,31 @@ function zaw-src-git-branches() {
         : ${(A)candidates::=${${(f)${branches_list}}#refs/}}
         : ${(A)cand_descriptions::=${${(f)${branches_list}}#refs/(remotes|heads|tags)/}}
     fi
-    actions=(zaw-src-git-branches-simple-checkout zaw-src-git-branches-checkout zaw-src-git-branches-merge zaw-src-git-branches-merge-rebase zaw-src-git-branches-merge-no-ff zaw-src-git-branches-merge-to zaw-src-git-branches-reset zaw-callback-append-to-buffer zaw-src-git-branches-create zaw-src-git-branches-reset-hard zaw-src-git-branches-delete)
-    act_descriptions=("check out" "check out locally" "merge" "merge rebase" "merge no ff" "merge to" "reset" "append to edit buffer"  "create new branch from..." "reset hard" "delete")
+    actions=( \
+        zaw-src-git-branches-simple-checkout \
+        zaw-src-git-branches-checkout \
+        zaw-callback-append-to-buffer \
+        zaw-src-git-branches-merge \
+        zaw-src-git-branches-merge-rebase \
+        zaw-src-git-branches-merge-no-ff \
+        zaw-src-git-branches-reset \
+        zaw-src-git-branches-rebase \
+        zaw-src-git-branches-rebase-interactive \
+        zaw-src-git-branches-create \
+        zaw-src-git-branches-reset-hard \
+        zaw-src-git-branches-delete)
+    act_descriptions=(
+        "check out" \
+        "check out locally" \
+        "append to edit buffer" \
+        "merge" \
+        "merge rebase" \
+        "merge no ff" \
+        "reset" \
+        "rebase" \
+        "rebase interactive from..." \
+        "create new branch from..." \
+        "reset hard" "delete")
     options=()
 }
 
@@ -81,6 +104,20 @@ function zaw-src-git-branches-reset-hard () {
     local b_type=${1%%/*}
     local b_name=${1#(heads|remotes|tags)/}
     BUFFER="git reset --hard $b_name"
+    zle accept-line
+}
+
+function zaw-src-git-branches-rebase () {
+    local b_type=${1%%/*}
+    local b_name=${1#(heads|remotes|tags)/}
+    BUFFER="git rebase $b_name"
+    zle accept-line
+}
+
+function zaw-src-git-branches-rebase-interactive () {
+    local b_type=${1%%/*}
+    local b_name=${1#(heads|remotes|tags)/}
+    BUFFER="git rebase -i $b_name"
     zle accept-line
 }
 
