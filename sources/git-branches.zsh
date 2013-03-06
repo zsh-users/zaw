@@ -31,7 +31,8 @@ function zaw-src-git-branches() {
         "rebase" \
         "rebase interactive from..." \
         "create new branch from..." \
-        "reset hard" "delete")
+        "reset hard" \
+        "delete")
     options=()
 }
 
