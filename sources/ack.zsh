@@ -34,7 +34,7 @@ function zaw-src-ack() {
     }
 
     if [[ "${ret}" == 0 ]]; then
-        ack --group "${(Q@)${(z)REPLY}}" | \
+        ack --group --nocolor "${(Q@)${(z)REPLY}}" | \
             while read f; do
                 while read line; do
                     if [[ -z "${line}" ]]; then
