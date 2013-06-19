@@ -1,7 +1,7 @@
 #
 # zaw-open-file
 #
-# zaw source for gnome-open to open file
+# zaw source for xdg-open to open file
 #
 
 function zaw-src-open-file() {
@@ -42,11 +42,25 @@ function zaw-src-open-file() {
 zaw-register-src -n open-file zaw-src-open-file
 
 function zaw-callback-open-file() {
+    local open
+    case "${(u)OSTYPE}" in
+        linux*|*bsd*)
+            open="xdg-open"
+            ;;
+        darwin*)
+            open="open"
+            ;;
+        *)
+            # TODO: what is the best fallback?
+            open="xdg-open"
+            ;;
+    esac
+
     # TODO: symlink to directory
     if [[ -d "$1" ]]; then
         zaw zaw-src-open-file "$1"
     else
-        BUFFER="gnome-open ${(q)1}"
-        accept-line
+        BUFFER="${open} ${(q)1}"
+        zle accept-line
     fi
 }
