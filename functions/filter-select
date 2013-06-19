@@ -85,6 +85,7 @@
 #   ':filter-select:highlight' selected
 #   ':filter-select:highlight' matched
 #   ':filter-select:highlight' title
+#   ':filter-select:highlight' error
 #   ':filter-select' max-lines
 #   ':filter-select' rotate-list
 #   ':filter-select' case-insensitive
@@ -133,11 +134,12 @@ function filter-select() {
     integer offset display_bottom_line selected_num rev=0 ret=0 enum=0
     integer mark_idx markable=0 is_marked
 
-    local hi_selected hi_matched hi_marked hi_title
+    local hi_selected hi_matched hi_marked hi_title hi_error
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
     zstyle -s ':filter-select:highlight' matched hi_matched || hi_matched='fg=magenta,underline'
     zstyle -s ':filter-select:highlight' marked hi_marked || hi_marked='fg=blue,standout'
     zstyle -s ':filter-select:highlight' title hi_title || hi_title='bold'
+    zstyle -s ':filter-select:highlight' error hi_error || hi_error='fg=white,bg=red'
 
     integer max_lines
     zstyle -s ':filter-select' max-lines max_lines || max_lines=0
@@ -451,7 +453,7 @@ function filter-select() {
                     msg='pattern not found'
                 fi
                 POSTDISPLAY+="${msg}"
-                region_highlight+="${offset} $(( offset + ${#msg} + 1 )) fg=white,bg=red"
+                region_highlight+="${offset} $(( offset + ${#msg} + 1 )) ${hi_error}"
             fi
 
             POSTDISPLAY+="${(F)displays}"$'\n'"[${selected_num}/${desc_num}]"
