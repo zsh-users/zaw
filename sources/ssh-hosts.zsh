@@ -5,6 +5,7 @@
 # values work.
 
 function zaw-src-ssh-hosts(){
+  local -a _global_ssh_known_hosts _global_ssh_known_hosts2 _ssh_known_hosts _ssh_known_hosts2 _etc_hosts _ssh_config_hosts
   [ -r /etc/ssh/ssh_known_hosts ] && _global_ssh_known_hosts=(${${${(f)"$(< /etc/ssh/ssh_known_hosts)"}%%\ *}%%,*}) 2>/dev/null || _global_ssh_known_hosts=()
   [ -r /etc/ssh/ssh_known_hosts2 ] && _global_ssh_known_hosts2=(${${${(f)"$(< /etc/ssh/ssh_known_hosts2)"}%%\ *}%%,*}) 2>/dev/null || _global_ssh_known_hosts2=()
   [ -r "$HOME/.ssh/known_hosts" ] && _ssh_known_hosts=(${${${(f)"$(< ~/.ssh/known_hosts)"}%%\ *}%%,*}) 2>/dev/null || _ssh_known_hosts=()
