@@ -10,7 +10,23 @@ function zaw-src-applications() {
 
     case "$OSTYPE" in
         [Dd]arwin*)
-            candidates=({,~}/Applications{,/Utilities}/*.app(N) /System/Library/CoreServices/*.app(N))
+            candidates=( )
+            # Use the spotlight index to get application paths
+            (( ${+commands[mdfind]} )) && \
+                candidates+=(${(f)"$(mdfind -onlyin / 'kMDItemKind == "Application"' 2>/dev/null)"})
+
+            # mdfind does not find apps inside apps (e.g. inside Adobe Reader)
+            # whereas locate's index does, so add that too if available to be
+            # more complete. This also helps if one or the other index is a bit
+            # stale.
+            (( ${+commands[locate]} && ${+commands[grep]} )) && \
+                candidates+=(${(f)"$((locate -i '.app' | grep -i '\.app$') 2>/dev/null)"})
+
+            # Glob common locations anyway since both of previous indexes may
+            # be stale or non-existent
+            candidates+=({,~}/Applications{,/Utilities}/*.app(N) /System/Library/CoreServices/*.app(N))
+
+            candidates=(${(iou)candidates[@]})
             actions=("zaw-callback-launch-macapp" "zaw-callback-append-to-buffer")
             act_descriptions=("execute application" "append to edit buffer")
             ;;
