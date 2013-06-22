@@ -7,7 +7,7 @@
 function zaw-src-screens() {
     local session state
 
-    screen -ls | awk '/^There (is a|are) screens? on:/ { next } /^[0-9]+ Sockets? in/ { exit } 1' | \
+    screen -ls | awk 'NR==1,/^There (is a|are) screens? on:/ { next } /^[0-9]+ Sockets? in/ { exit } 1' | \
         while read session state; do
             candidates+=("${session}")
             cand_descriptions+=("${(r:30:::::)session} ${state}")
