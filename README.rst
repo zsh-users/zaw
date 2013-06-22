@@ -37,13 +37,14 @@ currently these sources are available:
   - ack
   - applications
   - bookmark
+  - git-branches
   - git-files
   - git-files-legacy
-  - git-branches
   - history
   - open-file
   - perldoc
   - screens
+  - ssh-hosts
   - tmux
 
 (Note: git-files-legacy is an alternative for git-files.
@@ -67,12 +68,14 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   ack              zaw-ack
   applications     zaw-applications
   bookmark         zaw-bookmark
+  git-branches     zaw-git-branches
   git-files        zaw-git-files
   git-files-legacy zaw-git-files-legacy
   history          zaw-history
   open-file        zaw-open-file
   perldoc          zaw-perldoc
   screens          zaw-screens
+  ssh-hosts        zaw-ssh-hosts
   tmux             zaw-tmux
 
 
