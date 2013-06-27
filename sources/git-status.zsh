@@ -1,7 +1,14 @@
 function zaw-src-git-status() {
   git rev-parse --git-dir >/dev/null 2>&1
     if [[ $? == 0 ]]; then
-      : ${(A)candidates::=${${(f)"$(git status --porcelain)"}##<-> ##}}
+      local file_list="$(git status --porcelain)"
+      : ${(A)candidates::=${(f)${file_list}}}
+
+      : ${(A)cand_descriptions::=${${(f)${file_list}}/ M /[modified]    }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/M  /[staged]      }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/A  /[staged(add)] }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/\?\? /[untracked]   }}
+
     fi
 
     actions=(zaw-src-git-status-add zaw-src-git-status-add-p zaw-src-git-status-reset zaw-src-git-status-checkout)
