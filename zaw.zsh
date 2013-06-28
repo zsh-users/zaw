@@ -193,7 +193,12 @@ function zaw-callback-append-to-buffer() {
 function zaw-callback-edit-file() {
     local -a args
     args=("${(@q)@}")
-    BUFFER="${EDITOR} ${args}"
+
+    if [ ! ${ZAW_EDITOR} ]; then
+      ZAW_EDITOR=${EDITOR}
+    fi
+
+    BUFFER="${ZAW_EDITOR} ${args}"
     zle accept-line
 }
 
