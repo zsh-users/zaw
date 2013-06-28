@@ -18,25 +18,29 @@ function zaw-src-git-status() {
 
 function zaw-src-git-status-add() {
   local f_path=${1#(\?\? | M |M  |A  )}
-  BUFFER="git add $f_path"
+  local git_base="$(git rev-parse --show-cdup)"
+  BUFFER="git add $git_base$f_path"
   zle accept-line
 }
 
 function zaw-src-git-status-add-p() {
   local f_path=${1#(\?\? | M |M  |A  )}
-  BUFFER="git add -p $f_path"
+  local git_base="$(git rev-parse --show-cdup)"
+  BUFFER="git add -p $git_base$f_path"
   zle accept-line
 }
 
 function zaw-src-git-status-reset() {
   local f_path=${1#(\?\? | M |M  |A  )}
-  BUFFER="git reset $f_path"
+  local git_base="$(git rev-parse --show-cdup)"
+  BUFFER="git reset $git_base$f_path"
   zle accept-line
 }
 
 function zaw-src-git-status-checkout() {
   local f_path=${1#(\?\? | M |M  |A  )}
-  BUFFER="git checkout $f_path"
+  local git_base="$(git rev-parse --show-cdup)"
+  BUFFER="git checkout $git_base$f_path"
   zle accept-line
 }
 
