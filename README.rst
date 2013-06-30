@@ -42,6 +42,7 @@ currently these sources are available:
   - git-recent-branches
   - git-files
   - git-files-legacy
+  - git-status
   - history
   - open-file
   - perldoc
@@ -75,6 +76,7 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   git-recent-branches     zaw-git-recent-branches
   git-files        zaw-git-files
   git-files-legacy zaw-git-files-legacy
+  git-status       zaw-git-status
   history          zaw-history
   open-file        zaw-open-file
   perldoc          zaw-perldoc
