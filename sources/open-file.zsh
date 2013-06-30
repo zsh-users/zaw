@@ -43,7 +43,7 @@ zaw-register-src -n open-file zaw-src-open-file
 
 function zaw-callback-open-file() {
     local open
-    case "${(u)OSTYPE}" in
+    case "${(L)OSTYPE}" in
         linux*|*bsd*)
             open="xdg-open"
             ;;
