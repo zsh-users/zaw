@@ -6,7 +6,11 @@
 
 zmodload zsh/parameter
 
-if ! (( $+commands[ack] )); then
+if (( $+commands[ack] )); then
+    ACK_COMMAND="ack"
+elif (( $+commands[ack-grep] )); then
+    ACK_COMMAND="ack-grep"
+else
     # ack not found
     return
 fi
@@ -16,7 +20,7 @@ autoload -U read-from-minibuffer
 function zaw-src-ack() {
     local ack_args REPLY f line ret
     local -a ack_history
-    ack_history=( "${(@)${(f)"$(fc -l -n -m "ack *" 0 -1)"}#ack }" )
+    ack_history=( "${(@)${(f)"$(fc -l -n -m "$ACK_COMMAND *" 0 -1)"}#ack }" )
 
     function() {
         local HISTNO
@@ -34,7 +38,7 @@ function zaw-src-ack() {
     }
 
     if [[ "${ret}" == 0 ]]; then
-        ack --group --nocolor "${(Q@)${(z)REPLY}}" | \
+        $ACK_COMMAND --group --nocolor "${(Q@)${(z)REPLY}}" | \
             while read f; do
                 while read line; do
                     if [[ -z "${line}" ]]; then
