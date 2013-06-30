@@ -38,6 +38,8 @@ currently these sources are available:
   - applications
   - bookmark
   - git-branches
+  - git-recent-all-branches
+  - git-recent-branches
   - git-files
   - git-files-legacy
   - history
@@ -69,6 +71,8 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   applications     zaw-applications
   bookmark         zaw-bookmark
   git-branches     zaw-git-branches
+  git-recent-all-branches     zaw-git-recent-all-branches
+  git-recent-branches     zaw-git-recent-branches
   git-files        zaw-git-files
   git-files-legacy zaw-git-files-legacy
   history          zaw-history
