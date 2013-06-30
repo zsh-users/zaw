@@ -20,7 +20,7 @@ autoload -U read-from-minibuffer
 function zaw-src-ack() {
     local ack_args REPLY f line ret cand
     local -a ack_history
-    ack_history=( "${(@)${(f)"$(fc -l -n -m $ACK_COMMAND "*" 0 -1)"}#ack }" )
+    ack_history=( "${(@)${(f)"$(fc -l -n -m "$ACK_COMMAND *" 0 -1)"}#ack }" )
 
     function() {
         local HISTNO
