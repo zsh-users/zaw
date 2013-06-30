@@ -10,7 +10,26 @@ function zaw-src-applications() {
 
     case "$OSTYPE" in
         [Dd]arwin*)
-            candidates=({,~}/Applications{,/Utilities}/*.app(N) /System/Library/CoreServices/*.app(N))
+            candidates=( )
+            # Use the spotlight index to get application paths
+            (( ${+commands[mdfind]} )) && \
+                candidates+=(${(f)"$(mdfind -onlyin / 'kMDItemKind == "Application"' 2>/dev/null)"})
+
+            # Use locate if available and no output from spotlight or if forced use by ZAW_SRC_APPLICATIONS_USE_LOCATE
+            if (( ${+commands[locate]} )) && [ -n "$ZAW_SRC_APPLICATIONS_USE_LOCATE" -o $#candidates -eq 0 ]; then
+                # Apps inside apps are not normally useful
+                if [ -n "$ZAW_SRC_APPLICATIONS_INTERNAL_APPS_OK" ]; then
+                    candidates+=(${(f)"$(locate -i '*.app' 2>/dev/null)"})
+                elif [ ${+commands[grep]} -eq 1 ]; then
+                    candidates+=(${(f)"$((locate -i '*.app' | grep -iv '\.app/') 2>/dev/null)"})
+                fi
+            fi
+
+            # Glob common locations anyway since both of previous indexes may
+            # be stale or non-existent
+            candidates+=({,~}/Applications{,/Utilities}/*.app(N) /System/Library/CoreServices/*.app(N))
+
+            candidates=(${(iou)candidates[@]})
             actions=("zaw-callback-launch-macapp" "zaw-callback-append-to-buffer")
             act_descriptions=("execute application" "append to edit buffer")
             ;;
