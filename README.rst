@@ -46,6 +46,7 @@ currently these sources are available:
   - history
   - open-file
   - perldoc
+  - process
   - screens
   - ssh-hosts
   - tmux
@@ -80,6 +81,7 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   history          zaw-history
   open-file        zaw-open-file
   perldoc          zaw-perldoc
+  process          zaw-process
   screens          zaw-screens
   ssh-hosts        zaw-ssh-hosts
   tmux             zaw-tmux
