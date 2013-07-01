@@ -2,7 +2,7 @@
 
 function zaw-src-process () {
     local ps_list title ps pid_list
-    ps_list="$(ps -ux --sort args)"
+    ps_list="$(ps -aux --sort args | awk '$11 !~ /^\[/ {print $0}')" # filter out kernel processes
     title="${${(f)ps_list}[1]}"
     ps="$(echo $ps_list | sed '1d')"
     pid_list="$(echo $ps | awk '{print $2}')"
@@ -14,7 +14,16 @@ function zaw-src-process () {
 }
 
 function zaw-src-process-kill () {
-    BUFFER="kill $1"
+    local user="$(ps -ho user $1)"
+    if [[ -z $user ]]; then
+        echo "process with PID=$1 is not found"
+        return 1
+    fi
+    if [[ $user = $USER ]]; then
+        BUFFER="kill $1"
+    else
+        BUFFER="sudo kill $1"
+    fi
     zle accept-line
 }
 
