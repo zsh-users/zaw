@@ -6,13 +6,9 @@ function zaw-src-process () {
     local pid_list="$(echo $process_list | awk '{print $2}')"
     : ${(A)candidates::=${(f)pid_list}}
     : ${(A)cand_descriptions::=${(f)process_list}}
-    actions=(zaw-src-process-insert zaw-src-process-kill)
+    actions=(zaw-callback-append-to-buffer zaw-src-process-kill)
     act_descriptions=("insert" "kill")
     options=(-t "$process_desc")
-}
-
-function zaw-src-process-insert () {
-    BUFFER+=$1
 }
 
 function zaw-src-process-kill () {
