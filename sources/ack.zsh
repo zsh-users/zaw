@@ -14,7 +14,7 @@ fi
 autoload -U read-from-minibuffer
 
 function zaw-src-ack() {
-    local ack_args REPLY f line ret
+    local ack_args REPLY f line ret cand
     local -a ack_history
     ack_history=( "${(@)${(f)"$(fc -l -n -m "ack *" 0 -1)"}#ack }" )
 
@@ -40,19 +40,32 @@ function zaw-src-ack() {
                     if [[ -z "${line}" ]]; then
                         break
                     fi
-                    candidates+="${f}"
+
+                    if [ ! ${ZAW_EDITOR_JUMP_PARAM} ]; then
+                        ZAW_EDITOR_JUMP_PARAM="+%LINE% %FILE%"
+                    fi
+
+                    cand="${ZAW_EDITOR_JUMP_PARAM/\%LINE\%/${line/:*/}}"
+                    cand="${cand/\%FILE\%/${f}}"
+
+                    candidates+="${cand}"
                     cand_descriptions+="${f}:${line}"
                 done
             done
 
         print -s -r -- "ack ${REPLY}"
 
-        actions=("zaw-callback-edit-file" "zaw-callback-append-to-buffer")
+        actions=("zaw-src-ack-open-file" "zaw-callback-append-to-buffer")
         act_descriptions=("edit file" "append to edit buffer")
         options=("-m")
     else
         return 1
     fi
+}
+
+function zaw-src-ack-open-file() {
+  BUFFER="${ZAW_EDITOR} $1"
+  zle accept-line
 }
 
 zaw-register-src -n ack zaw-src-ack
