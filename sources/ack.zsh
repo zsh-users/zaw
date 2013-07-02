@@ -64,8 +64,11 @@ function zaw-src-ack() {
 }
 
 function zaw-src-ack-open-file() {
-  BUFFER="${ZAW_EDITOR} $1"
-  zle accept-line
+    if [ ! ${ZAW_EDITOR} ]; then
+        ZAW_EDITOR=${EDITOR}
+    fi
+    BUFFER="${ZAW_EDITOR} $1"
+   zle accept-line
 }
 
 zaw-register-src -n ack zaw-src-ack
