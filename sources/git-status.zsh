@@ -9,6 +9,7 @@ function zaw-src-git-status() {
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/A  /[staged(add)] }}
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/MM /[staged][modified] }}
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/AM /[staged(add)][modified] }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/UU /[conflict] }}
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/\?\? /[untracked]   }}
 
     fi
