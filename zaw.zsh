@@ -194,11 +194,14 @@ function zaw-callback-edit-file() {
     local -a args
     args=("${(@q)@}")
 
+    # remove garbage from zaw-git-status
+    local f_path=${1#(\?\? | M |M  |A  |UU )}
+
     if [ ! ${ZAW_EDITOR} ]; then
       ZAW_EDITOR=${EDITOR}
     fi
 
-    BUFFER="${ZAW_EDITOR} ${args}"
+    BUFFER="${ZAW_EDITOR} ${f_path}"
     zle accept-line
 }
 
