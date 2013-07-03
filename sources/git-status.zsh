@@ -14,8 +14,8 @@ function zaw-src-git-status() {
 
     fi
 
-    actions=(zaw-src-git-status-add zaw-src-git-status-add-p zaw-src-git-status-reset zaw-src-git-status-checkout)
-    act_descriptions=("add" "add -p" "reset" "checkout")
+    actions=(zaw-src-git-status-add zaw-src-git-status-add-p zaw-src-git-status-reset zaw-src-git-status-checkout zaw-callback-edit-file)
+    act_descriptions=("add" "add -p" "reset" "checkout" "edit")
     options=()
 }
 
