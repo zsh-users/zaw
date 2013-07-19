@@ -8,6 +8,7 @@ function zaw-src-git-status() {
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/AM /[add|modified] }}
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/M  /[staged]       }}
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/A  /[staged(add)]  }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/ D /[deleted]      }}
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/UU /[conflict]     }}
       : ${(A)cand_descriptions::=${${(M)cand_descriptions}/\?\? /[untracked]    }}
 
@@ -19,28 +20,28 @@ function zaw-src-git-status() {
 }
 
 function zaw-src-git-status-add() {
-  local f_path=${1#(\?\? | M |AM |M  |A  |UU )}
+  local f_path=${1#(\?\? | M |AM |M  |A  | D |UU )}
   local git_base="$(git rev-parse --show-cdup)"
   BUFFER="git add $git_base$f_path"
   zle accept-line
 }
 
 function zaw-src-git-status-add-p() {
-  local f_path=${1#(\?\? | M |AM |M  |A  |UU )}
+  local f_path=${1#(\?\? | M |AM |M  |A  | D |UU )}
   local git_base="$(git rev-parse --show-cdup)"
   BUFFER="git add -p $git_base$f_path"
   zle accept-line
 }
 
 function zaw-src-git-status-reset() {
-  local f_path=${1#(\?\? | M |AM |M  |A  |UU )}
+  local f_path=${1#(\?\? | M |AM |M  |A  | D |UU )}
   local git_base="$(git rev-parse --show-cdup)"
   BUFFER="git reset $git_base$f_path"
   zle accept-line
 }
 
 function zaw-src-git-status-checkout() {
-  local f_path=${1#(\?\? | M |AM |M  |A  |UU )}
+  local f_path=${1#(\?\? | M |AM |M  |A  | D |UU )}
   local git_base="$(git rev-parse --show-cdup)"
   BUFFER="git checkout $git_base$f_path"
   zle accept-line
