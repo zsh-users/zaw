@@ -4,14 +4,15 @@ function zaw-src-git-status() {
       local file_list="$(git status --porcelain)"
       : ${(A)candidates::=${(f)${file_list}}}
 
-      : ${(A)cand_descriptions::=${${(f)${file_list}}/ M /[modified] }}
-      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/M  /[staged] }}
-      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/A  /[staged(add)] }}
-      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/MM /[staged][modified] }}
-      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/AM /[staged(add)][modified] }}
-      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/UU /[conflict] }}
-      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/ D /[deleted] }}
-      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/\?\? /[untracked] }}
+      : ${(A)cand_descriptions::=${${(f)${file_list}}/ M /[modified]        }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/AM /[add|modified]    }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/MM /[staged|modified] }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/M  /[staged]          }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/A  /[staged(add)]     }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/ D /[deleted]         }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/UU /[conflict]        }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/AA /[conflict]        }}
+      : ${(A)cand_descriptions::=${${(M)cand_descriptions}/\?\? /[untracked]       }}
 
     fi
 
@@ -49,9 +50,9 @@ function zaw-src-git-status-checkout() {
 }
 
 function zaw-src-git-status-rm() {
-  local f_path=${1#(\?\? | M |AM |M  |A  | D |UU )}
+  local f_path=${1##?* }
   local git_base="$(git rev-parse --show-cdup)"
-  BUFFER="git rm $git_base$f_path"
+  BUFFER="git rm '$git_base$f_path'"
   zle accept-line
 }
 
