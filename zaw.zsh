@@ -195,7 +195,7 @@ function zaw-callback-edit-file() {
     args=("${(@q)@}")
 
     # remove garbage from zaw-git-status
-    local f_path=${1#(\?\? | M |M  |A  |UU )}
+    local f_path=${1#(\?\? | M |AM |M  |A  | D |UU |AA )}
 
     if [ ! ${ZAW_EDITOR} ]; then
       ZAW_EDITOR=${EDITOR}
