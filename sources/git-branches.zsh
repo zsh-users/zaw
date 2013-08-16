@@ -19,7 +19,8 @@ function zaw-src-git-branches() {
         zaw-src-git-branches-rebase-interactive \
         zaw-src-git-branches-create \
         zaw-src-git-branches-reset-hard \
-        zaw-src-git-branches-delete)
+        zaw-src-git-branches-delete \
+        zaw-src-git-branches-delete-force)
     act_descriptions=(
         "check out" \
         "check out locally" \
@@ -32,7 +33,8 @@ function zaw-src-git-branches() {
         "rebase interactive from..." \
         "create new branch from..." \
         "reset hard" \
-        "delete")
+        "delete" \
+        "delete force")
     options=()
 }
 
@@ -127,6 +129,20 @@ function zaw-src-git-branches-delete () {
     local b_name=${1#(heads|remotes|tags)/}
     if [[ "$b_type" == "heads" ]] ; then
         BUFFER="git branch -d $b_name"
+        zle accept-line
+    elif [[ "$b_type" == "remotes" ]] ; then
+        local b_loc=${b_name%%/*}
+        local b_base=${b_name#$b_loc/}
+        BUFFER="git push $b_loc :$b_base"
+        zle accept-line
+    fi
+}
+
+function zaw-src-git-branches-delete-force () {
+    local b_type=${1%%/*}
+    local b_name=${1#(heads|remotes|tags)/}
+    if [[ "$b_type" == "heads" ]] ; then
+        BUFFER="git branch -D $b_name"
         zle accept-line
     elif [[ "$b_type" == "remotes" ]] ; then
         local b_loc=${b_name%%/*}
