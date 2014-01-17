@@ -26,6 +26,11 @@ function zaw-src-git-files-classify-aux() {
     : ${(A)ms::=${(0)"$(git ls-files $(git rev-parse --show-cdup) -z -m)"}}
     if (( $#ms == 0 )) || (( $#ms == 1 )) &&  [[ -z "$ms" ]]; then
         candidates=($as)
+        for candidate in ${candidates}
+        do
+            as_short=`echo ${candidate} | awk -F'/' '{if (NF>4){LASTDIR=NF-1; print $1"/"$2"/.../"$LASTDIR"/"$NF;} else {print $0}}'`
+            cand_descriptions+=${as_short}
+        done
         return 0
     fi
 
