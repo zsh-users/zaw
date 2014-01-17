@@ -49,7 +49,8 @@ function zaw-src-ack() {
                     cand="${cand/\%FILE\%/${f}}"
 
                     candidates+="${cand}"
-                    cand_descriptions+="${f}:${line}"
+                    cand_short=`echo ${f} | awk -F'/' '{if (NF>3){LASTDIR=NF-1; print $1"/.../"$LASTDIR"/"$NF;} else {print $0}}'`
+                    cand_descriptions+="${cand_short}:${line}"
                 done
             done
 
