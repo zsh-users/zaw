@@ -8,8 +8,34 @@ function zaw-src-git-recent-branches () {
         : ${(A)cand_descriptions::=${${(f)${branches}}#refs/(remotes|heads|tags)/}}
     fi
 
-    actions=(zaw-src-git-branches-checkout zaw-src-git-branches-merge zaw-src-git-branches-merge-no-ff zaw-src-git-branches-merge-to zaw-src-git-branches-reset zaw-src-git-branches-create zaw-src-git-branches-delete)
-    act_descriptions=("check out" "merge" "merge no ff" "merge to" "reset" "create new branch from..." "diff" "diff stat" "delete")
+    actions=( \
+        zaw-src-git-branches-simple-checkout \
+        zaw-src-git-branches-checkout \
+        zaw-callback-append-to-buffer \
+        zaw-src-git-branches-merge \
+        zaw-src-git-branches-merge-rebase \
+        zaw-src-git-branches-merge-no-ff \
+        zaw-src-git-branches-reset \
+        zaw-src-git-branches-rebase \
+        zaw-src-git-branches-rebase-interactive \
+        zaw-src-git-branches-create \
+        zaw-src-git-branches-reset-hard \
+        zaw-src-git-branches-delete \
+        zaw-src-git-branches-delete-force)
+    act_descriptions=(
+        "check out" \
+        "check out locally" \
+        "append to edit buffer" \
+        "merge" \
+        "merge rebase" \
+        "merge no ff" \
+        "reset" \
+        "rebase" \
+        "rebase interactive from..." \
+        "create new branch from..." \
+        "reset hard" \
+        "delete" \
+        "delete force")
     options=()
 }
 
@@ -21,8 +47,34 @@ function zaw-src-git-recent-all-branches () {
         : ${(A)cand_descriptions::=${${(f)${branches}}#refs/(remotes|heads|tags)/}}
     fi
 
-    actions=(zaw-src-git-branches-checkout zaw-src-git-branches-merge zaw-src-git-branches-merge-no-ff zaw-src-git-branches-merge-to zaw-src-git-branches-reset zaw-src-git-branches-create zaw-src-git-branches-diff zaw-src-git-branches-diff-stat zaw-src-git-branches-delete)
-    act_descriptions=("check out" "merge" "merge no ff" "merge to" "reset" "create new branch from..." "diff" "diff stat" "delete")
+    actions=( \
+        zaw-src-git-branches-simple-checkout \
+        zaw-src-git-branches-checkout \
+        zaw-callback-append-to-buffer \
+        zaw-src-git-branches-merge \
+        zaw-src-git-branches-merge-rebase \
+        zaw-src-git-branches-merge-no-ff \
+        zaw-src-git-branches-reset \
+        zaw-src-git-branches-rebase \
+        zaw-src-git-branches-rebase-interactive \
+        zaw-src-git-branches-create \
+        zaw-src-git-branches-reset-hard \
+        zaw-src-git-branches-delete \
+        zaw-src-git-branches-delete-force)
+    act_descriptions=(
+        "check out" \
+        "check out locally" \
+        "append to edit buffer" \
+        "merge" \
+        "merge rebase" \
+        "merge no ff" \
+        "reset" \
+        "rebase" \
+        "rebase interactive from..." \
+        "create new branch from..." \
+        "reset hard" \
+        "delete" \
+        "delete force")
     options=()
 }
 
