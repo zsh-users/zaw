@@ -29,7 +29,7 @@ function zaw-src-ack() {
             (( histno++ ))
         done
         HISTNO="${histno}"
-        read-from-minibuffer "ack "
+        read-from-minibuffer "${ACK_COMMAND} "
         ret=$?
     }
 
@@ -54,7 +54,7 @@ function zaw-src-ack() {
                 done
             done
 
-        print -s -r -- "ack ${REPLY}"
+        print -s -r -- "${ACK_COMMAND} ${REPLY}"
 
         actions=("zaw-src-ack-open-file" "zaw-callback-append-to-buffer")
         act_descriptions=("edit file" "append to edit buffer")
