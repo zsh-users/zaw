@@ -15,6 +15,8 @@ function zaw-src-git-recent-branches () {
         zaw-src-git-branches-merge \
         zaw-src-git-branches-merge-rebase \
         zaw-src-git-branches-merge-no-ff \
+        zaw-src-git-branches-diff \
+        zaw-src-git-branches-diff-stat \
         zaw-src-git-branches-reset \
         zaw-src-git-branches-rebase \
         zaw-src-git-branches-rebase-interactive \
@@ -29,6 +31,8 @@ function zaw-src-git-recent-branches () {
         "merge" \
         "merge rebase" \
         "merge no ff" \
+        "diff" \
+        "diff stat" \
         "reset" \
         "rebase" \
         "rebase interactive from..." \
@@ -54,6 +58,8 @@ function zaw-src-git-recent-all-branches () {
         zaw-src-git-branches-merge \
         zaw-src-git-branches-merge-rebase \
         zaw-src-git-branches-merge-no-ff \
+        zaw-src-git-branches-diff \
+        zaw-src-git-branches-diff-stat \
         zaw-src-git-branches-reset \
         zaw-src-git-branches-rebase \
         zaw-src-git-branches-rebase-interactive \
@@ -68,6 +74,8 @@ function zaw-src-git-recent-all-branches () {
         "merge" \
         "merge rebase" \
         "merge no ff" \
+        "diff" \
+        "diff stat" \
         "reset" \
         "rebase" \
         "rebase interactive from..." \
