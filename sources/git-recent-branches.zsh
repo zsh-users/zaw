@@ -9,8 +9,8 @@ function zaw-src-git-recent-branches () {
     fi
 
     actions=( \
-        zaw-src-git-branches-simple-checkout \
         zaw-src-git-branches-checkout \
+        zaw-src-git-branches-simple-checkout \
         zaw-callback-append-to-buffer \
         zaw-src-git-branches-merge \
         zaw-src-git-branches-merge-rebase \
@@ -23,8 +23,8 @@ function zaw-src-git-recent-branches () {
         zaw-src-git-branches-delete \
         zaw-src-git-branches-delete-force)
     act_descriptions=(
-        "check out" \
         "check out locally" \
+        "check out" \
         "append to edit buffer" \
         "merge" \
         "merge rebase" \
@@ -48,8 +48,8 @@ function zaw-src-git-recent-all-branches () {
     fi
 
     actions=( \
-        zaw-src-git-branches-simple-checkout \
         zaw-src-git-branches-checkout \
+        zaw-src-git-branches-simple-checkout \
         zaw-callback-append-to-buffer \
         zaw-src-git-branches-merge \
         zaw-src-git-branches-merge-rebase \
@@ -62,8 +62,8 @@ function zaw-src-git-recent-all-branches () {
         zaw-src-git-branches-delete \
         zaw-src-git-branches-delete-force)
     act_descriptions=(
-        "check out" \
         "check out locally" \
+        "check out" \
         "append to edit buffer" \
         "merge" \
         "merge rebase" \
