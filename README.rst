@@ -50,6 +50,9 @@ currently these sources are available:
   - screens
   - ssh-hosts
   - tmux
+  - fasd
+  - fasd-directories
+  - fasd-files
 
 (Note: git-files-legacy is an alternative for git-files.
 git-files classifies modified files, git-files-legacy doesn't do it for
@@ -85,6 +88,9 @@ you can get all available shortcut widgets' name using ``zaw-print-src``::
   screens          zaw-screens
   ssh-hosts        zaw-ssh-hosts
   tmux             zaw-tmux
+  fasd             zaw-fasd
+  fasd-directories zaw-directories
+  fasd-files       zaw-files
 
 
 key binds and styles

@@ -6,7 +6,7 @@ function zaw-src-fasd () {
 }
 
 
-function zaw-src-fasd-f () {
+function zaw-src-fasd-files () {
     candidates=($(fasd -fl))
     actions=(zaw-callback-append-to-buffer)
     act_descriptions=("append to edit buffer")
@@ -14,7 +14,7 @@ function zaw-src-fasd-f () {
 }
 
 
-function zaw-src-fasd-d () {
+function zaw-src-fasd-directories () {
     candidates=($(fasd -dl))
     actions=(zaw-callback-append-to-buffer)
     act_descriptions=("append to edit buffer")
@@ -22,6 +22,6 @@ function zaw-src-fasd-d () {
 }
 
 
-zaw-register-src -n fasd-a zaw-src-fasd-a
-zaw-register-src -n fasd-d zaw-src-fasd-d
-zaw-register-src -n fasd-f zaw-src-fasd-f
+zaw-register-src -n fasd zaw-src-fasd
+zaw-register-src -n fasd-directories zaw-src-fasd-directories
+zaw-register-src -n fasd-files zaw-src-fasd-files
