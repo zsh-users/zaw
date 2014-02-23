@@ -2,7 +2,8 @@
 function zaw-src-git-log() {
     git rev-parse --git-dir >/dev/null 2>&1
     if [[ $? == 0 ]]; then
-        local desc="$(git log --all --graph --decorate --oneline)"
+        local desc="$(git log --all --graph --decorate --oneline --no-color)"
+        
         : ${(A)cand_descriptions::=${(f)desc}}
         : ${(A)candidates::=${(f)desc}}
     fi
