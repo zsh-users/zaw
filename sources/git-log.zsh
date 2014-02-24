@@ -10,11 +10,13 @@ function zaw-src-git-log() {
     actions=(zaw-src-git-log-insert \
              zaw-src-git-log-reset \
              zaw-src-git-log-reset-hard \
+             zaw-src-git-log-cherry-pick \
              zaw-src-git-log-create-branch \
              zaw-src-git-log-revert)
     act_descriptions=("insert" \
                       "reset" \
                       "reset --hard" \
+                      "cherry-pick" \
                       "create new branch from this hash value" \
                       "revert")
     options=()
@@ -38,6 +40,12 @@ function zaw-src-git-log-reset(){
 function zaw-src-git-log-reset-hard(){
     local hash_val=$(_zaw-src-git-log-strip $1)
     BUFFER="git reset --hard $hash_val"
+    zle accept-line
+}
+
+function zaw-src-git-log-cherry-pick(){
+    local hash_val=$(_zaw-src-git-log-strip $1)
+    BUFFER="git cherry-pick $hash_val"
     zle accept-line
 }
 
