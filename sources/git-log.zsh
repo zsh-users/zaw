@@ -20,7 +20,7 @@ function zaw-src-git-log() {
 }
 
 function _zaw-src-git-log-strip(){
-    echo $1 | sed -e 's/^[*|/\\ ]* \([a-f0-9]*\) .*/\1/' -er "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g"
+    echo $1 | sed -e 's/^[*|/\\ ]* \([a-f0-9]*\) .*/\1/'
 }
 
 function zaw-src-git-log-insert(){
