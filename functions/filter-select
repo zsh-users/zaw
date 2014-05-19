@@ -653,9 +653,11 @@ function _filter-select-init-keybind() {
 
         bindkey -M filterselect '^F' forward-char
         bindkey -M filterselect '^[[C' forward-char
+        bindkey -M filterselect '^[OC' forward-char
 
         bindkey -M filterselect '^B' backward-char
         bindkey -M filterselect '^[[D' backward-char
+        bindkey -M filterselect '^[OD' backward-char
 
         bindkey -M filterselect '^A' beginning-of-line
         bindkey -M filterselect '^E' end-of-line
@@ -667,8 +669,10 @@ function _filter-select-init-keybind() {
         # move cursor down/up
         bindkey -M filterselect '^N' down-line-or-history
         bindkey -M filterselect '^[[B' down-line-or-history
+        bindkey -M filterselect '^[OB' down-line-or-history
         bindkey -M filterselect '^P' up-line-or-history
         bindkey -M filterselect '^[[A' up-line-or-history
+        bindkey -M filterselect '^[OA' up-line-or-history
 
         # page down/up
         bindkey -M filterselect '^V' forward-word
@@ -697,7 +701,7 @@ function _filter-select-read-keys() {
     if [[ '#key' -eq '#\\e' ]]; then
         # M-...
         read -t $(( KEYTIMEOUT / 1000 )) -k key2
-        if [[ "${key2}" == '[' ]]; then
+        if [[ "${key2}" == ['['O] ]]; then
             # cursor keys
             read -k key3
             ret=$?
