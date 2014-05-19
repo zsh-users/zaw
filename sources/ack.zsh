@@ -6,7 +6,11 @@
 
 zmodload zsh/parameter
 
-if ! (( $+commands[ack] )); then
+if (( $+commands[ack] )); then
+    ACK_COMMAND="ack"
+elif (( $+commands[ack-grep] )); then
+    ACK_COMMAND="ack-grep"
+else
     # ack not found
     return
 fi
@@ -16,7 +20,7 @@ autoload -U read-from-minibuffer
 function zaw-src-ack() {
     local ack_args REPLY f line ret cand
     local -a ack_history
-    ack_history=( "${(@)${(f)"$(fc -l -n -m "ack *" 0 -1)"}#ack }" )
+    ack_history=( "${(@)${(f)"$(fc -l -n -m "$ACK_COMMAND *" 0 -1)"}#ack }" )
 
     function() {
         local HISTNO
@@ -29,12 +33,12 @@ function zaw-src-ack() {
             (( histno++ ))
         done
         HISTNO="${histno}"
-        read-from-minibuffer "ack "
+        read-from-minibuffer "${ACK_COMMAND} "
         ret=$?
     }
 
     if [[ "${ret}" == 0 ]]; then
-        ack --group --nocolor "${(Q@)${(z)REPLY}}" | \
+        $ACK_COMMAND --group --nocolor "${(Q@)${(z)REPLY}}" | \
             while read f; do
                 while read line; do
                     if [[ -z "${line}" ]]; then
@@ -49,11 +53,12 @@ function zaw-src-ack() {
                     cand="${cand/\%FILE\%/${f}}"
 
                     candidates+="${cand}"
-                    cand_descriptions+="${f}:${line}"
+                    cand_short=`echo ${f} | awk -F'/' '{if (NF>3){LASTDIR=NF-1; print $1"/.../"$LASTDIR"/"$NF;} else {print $0}}'`
+                    cand_descriptions+="${cand_short}:${line}"
                 done
             done
 
-        print -s -r -- "ack ${REPLY}"
+        print -s -r -- "${ACK_COMMAND} ${REPLY}"
 
         actions=("zaw-src-ack-open-file" "zaw-callback-append-to-buffer")
         act_descriptions=("edit file" "append to edit buffer")
