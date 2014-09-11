@@ -27,7 +27,7 @@ function zaw-src-applications() {
 
             # Glob common locations anyway since both of previous indexes may
             # be stale or non-existent
-            candidates+=({,~}/Applications{,/Utilities}/*.app(N) /System/Library/CoreServices/*.app(N))
+            candidates+=({,~}/Applications{,/Utilities}/*.app(N^M) /System/Library/CoreServices/*.app(N^M))
 
             candidates=(${(iou)candidates[@]})
             actions=("zaw-callback-launch-macapp" "zaw-callback-append-to-buffer")
