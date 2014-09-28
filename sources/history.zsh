@@ -2,6 +2,9 @@ zmodload zsh/parameter
 
 function zaw-src-history() {
     cands_assoc=("${(@kv)history}")
+    if [[ -o hist_find_no_dups ]]; then
+        cands_assoc=("${(u)cands_assoc}")
+    fi
     actions=("zaw-callback-execute" "zaw-callback-replace-buffer" "zaw-callback-append-to-buffer")
     act_descriptions=("execute" "replace edit buffer" "append to edit buffer")
     options=("-r" "-m")
