@@ -23,6 +23,7 @@
 # usage:
 #   filter-select [-t title] [-A assoc-array-name]
 #                 [-d array-of-description] [-D assoc-array-of-descrption]
+#                 [-s initial-filter-contents]
 #                 [-n] [-r] [-m] [-e exit-zle-widget-name]... [--] [arg]...
 #   filter-select -i
 #
@@ -38,6 +39,9 @@
 #       it is used to display and filter candidates.
 #
 #       if not specified, copied from candidates.
+#
+#     -s initial-filter-contents
+#        initial contents of the filter buffer that users type into
 #
 #     -n
 #       assign a number to the description when -d is not specified
@@ -122,7 +126,7 @@ function filter-select() {
     local -a orig_region_highlight words
     orig_region_highlight=("${region_highlight[@]}")
 
-    local key cand lines selected cand_disp buffer_pre_zle last_buffer=''
+    local key cand lines selected cand_disp buffer_pre_zle last_buffer initbuffer=''
     local opt pattern msg unused title='' exit_pattern nl=$'\n'
     local selected_index mark_idx_disp hi start end spec
 
@@ -153,7 +157,7 @@ function filter-select() {
     descriptions=()
     exit_wigdets=(accept-line accept-search send-break)
 
-    while getopts 't:A:d:D:nrme:i' opt; do
+    while getopts 't:A:d:D:nrme:s:i' opt; do
         case "${opt}" in
             t)
                 title="${OPTARG}"
@@ -187,6 +191,9 @@ function filter-select() {
                 ;;
             e)
                 exit_wigdets+="${OPTARG}"
+                ;;
+            s)
+                initbuffer="${OPTARG}"
                 ;;
             i)
                 # do nothing. only keybinds are initialized
@@ -230,7 +237,7 @@ function filter-select() {
     bounds=''
 
     # clear edit buffer
-    BUFFER=''
+    BUFFER="$initbuffer"
 
     # display original edit buffer's contants as PREDISPLAY
     PREDISPLAY="${orig_predisplay}${orig_lbuffer}${orig_rbuffer}${orig_postdisplay}${nl}"
