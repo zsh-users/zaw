@@ -7,8 +7,24 @@ function zaw-src-git-branches() {
         : ${(A)candidates::=${${(f)${branches_list}}#refs/}}
         : ${(A)cand_descriptions::=${${(f)${branches_list}}#refs/(remotes|heads|tags)/}}
     fi
-    actions=(zaw-src-git-branches-checkout zaw-src-git-branches-merge zaw-src-git-branches-merge-no-ff zaw-src-git-branches-merge-to zaw-src-git-branches-reset zaw-src-git-branches-create zaw-src-git-branches-delete)
-    act_descriptions=("check out" "merge" "merge no ff" "merge to" "reset" "create new branch from..." "delete")
+    actions=(zaw-src-git-branches-checkout \
+             zaw-src-git-branches-merge \
+             zaw-src-git-branches-merge-no-ff \
+             zaw-src-git-branches-merge-to \
+             zaw-src-git-branches-reset \
+             zaw-src-git-branches-create \
+             zaw-src-git-branches-diff \
+             zaw-src-git-branches-diff-stat \
+             zaw-src-git-branches-delete)
+    act_descriptions=("check out" \
+                      "merge" \
+                      "merge no ff" \
+                      "merge to" \
+                      "reset" \
+                      "create new branch from..." \
+                      "diff" \
+                      "diff statistics" \
+                      "delete")
     options=()
 }
 
@@ -61,6 +77,18 @@ function zaw-src-git-branches-reset () {
     local b_type=${1%%/*}
     local b_name=${1#(heads|remotes|tags)/}
     BUFFER="git reset $b_name"
+    zle accept-line
+}
+
+function zaw-src-git-branches-diff() {
+    local b_name=${1#(heads|remotes|tags)/}
+    BUFFER="git diff $b_name"
+    zle accept-line
+}
+
+function zaw-src-git-branches-diff-stat() {
+  local b_name=${1#(heads|remotes|tags)/}
+    BUFFER="git diff --stat $b_name"
     zle accept-line
 }
 
