@@ -640,10 +640,10 @@ function _filter-select-init-keybind() {
 
         bindkey -M filterselect '^J' accept-line
         bindkey -M filterselect '^M' accept-line
-        bindkey -M filterselect '^[^J' accept-search
-        bindkey -M filterselect '^[^M' accept-search
+        bindkey -M filterselect '\e^J' accept-search
+        bindkey -M filterselect '\e^M' accept-search
 
-        bindkey -M filterselect '^[^G' send-break
+        bindkey -M filterselect '\e^G' send-break
         bindkey -M filterselect '^G' send-break
 
         bindkey -M filterselect '^@' set-mark-command
@@ -652,12 +652,12 @@ function _filter-select-init-keybind() {
         bindkey -M filterselect '^?' backward-delete-char
 
         bindkey -M filterselect '^F' forward-char
-        bindkey -M filterselect '^[[C' forward-char
-        bindkey -M filterselect '^[OC' forward-char
+        bindkey -M filterselect '\e[C' forward-char
+        bindkey -M filterselect '\eOC' forward-char
 
         bindkey -M filterselect '^B' backward-char
-        bindkey -M filterselect '^[[D' backward-char
-        bindkey -M filterselect '^[OD' backward-char
+        bindkey -M filterselect '\e[D' backward-char
+        bindkey -M filterselect '\eOD' backward-char
 
         bindkey -M filterselect '^A' beginning-of-line
         bindkey -M filterselect '^E' end-of-line
@@ -676,18 +676,18 @@ function _filter-select-init-keybind() {
 
         # page down/up
         bindkey -M filterselect '^V' forward-word
-        bindkey -M filterselect '^[[6~' forward-word
+        bindkey -M filterselect '\e[6~' forward-word
 
-        bindkey -M filterselect '^[V' backward-word
-        bindkey -M filterselect '^[v' backward-word
-        bindkey -M filterselect '^[[5~' backward-word
+        bindkey -M filterselect '\eV' backward-word
+        bindkey -M filterselect '\ev' backward-word
+        bindkey -M filterselect '\e[5~' backward-word
 
         # home/end
-        bindkey -M filterselect '^[<' beginning-of-history
-        bindkey -M filterselect '^[[1~' beginning-of-history
+        bindkey -M filterselect '\e<' beginning-of-history
+        bindkey -M filterselect '\e[1~' beginning-of-history
 
-        bindkey -M filterselect '^[>' end-of-history
-        bindkey -M filterselect '^[[4~' end-of-history
+        bindkey -M filterselect '\e>' end-of-history
+        bindkey -M filterselect '\e[4~' end-of-history
     fi
 }
 
