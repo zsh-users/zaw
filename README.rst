@@ -150,6 +150,15 @@ and these zstyles to customize styles::
   
       If you want to search these metacharacters, please doubly escape them.
 
+environment variable
+====================
+
+ZAW_EDITOR              editor command. If this variable is not set, use EDITOR value.
+ZAW_EDITOR_JUMP_PARAM   open editor command with line params.
+                        %LINE% is replaced by line number.
+                        %FILE% is replaced by file path.
+                        default +%LINE% %FILE%
+
 license
 =======
 
