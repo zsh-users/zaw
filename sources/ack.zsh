@@ -18,7 +18,7 @@ fi
 autoload -U read-from-minibuffer
 
 function zaw-src-ack() {
-    local ack_args REPLY f line ret cand
+    local ack_args REPLY f line ret cand short_name
     local -a ack_history
     ack_history=( "${(@)${(f)"$(fc -l -n -m "$ACK_COMMAND *" 0 -1)"}#ack }" )
 
@@ -40,6 +40,7 @@ function zaw-src-ack() {
     if [[ "${ret}" == 0 ]]; then
         $ACK_COMMAND --group --nocolor "${(Q@)${(z)REPLY}}" | \
             while read f; do
+                short_name=`echo ${f} | awk -F'/' '{if (NF>3){LASTDIR=NF-1; print $1"/.../"$LASTDIR"/"$NF;} else {print $0}}'`
                 while read line; do
                     if [[ -z "${line}" ]]; then
                         break
@@ -53,8 +54,7 @@ function zaw-src-ack() {
                     cand="${cand/\%FILE\%/${f}}"
 
                     candidates+="${cand}"
-                    cand_short=`echo ${f} | awk -F'/' '{if (NF>3){LASTDIR=NF-1; print $1"/.../"$LASTDIR"/"$NF;} else {print $0}}'`
-                    cand_descriptions+="${cand_short}:${line}"
+                    cand_descriptions+="${short_name}:${line}"
                 done
             done
 
