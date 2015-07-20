@@ -28,7 +28,10 @@ function zaw-src-searcher() {
 function zaw-src-searcher-edit () {
     local filename=${1%%:*}
     local line=${${1#*:}%%:*}
-    BUFFER="${EDITOR} +$line $filename"
+    if [[ -z $ZAW_EDITOR_JUMP_PARAM ]]; then
+        ZAW_EDITOR_JUMP_PARAM="+%LINE% %FILE%"
+    fi
+    BUFFER="${EDITOR} ${${ZAW_EDITOR_JUMP_PARAM/\%LINE\%/$line}/\%FILE\%/$filename}"
     zle accept-line
 }
 
