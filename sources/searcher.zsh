@@ -1,5 +1,7 @@
 # zaw source for ack/ag searcher
 
+autoload -U read-from-minibuffer
+
 if (( $+commands[ag] )); then
     ZAW_SEARCHER_CMD="ag"
 elif (( $+commands[ack-grep] )); then
