@@ -17,6 +17,9 @@ function zaw-src-searcher() {
     local buf
     read-from-minibuffer "${ZAW_SEARCHER_CMD} "
     buf=$($ZAW_SEARCHER_CMD ${(Q@)${(z)REPLY}})
+    if [[ $? != 0 ]]; then
+        return 1
+    fi
     : ${(A)candidates::=${(f)buf}}
     : ${(A)cand_descriptions::=${(f)buf}}
     actions=(\
@@ -37,4 +40,4 @@ function zaw-src-searcher-edit () {
     zle accept-line
 }
 
-zaw-register-src -n "ack/ag searcher" zaw-src-searcher
+zaw-register-src -n searcher zaw-src-searcher
