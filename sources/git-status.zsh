@@ -63,7 +63,8 @@ function zaw-src-git-status-checkout() {
 
 function zaw-src-git-status-edit() {
   local f_path=${1##?* }
-  zaw-callback-edit-file $f_path
+  local git_base="$(git rev-parse --show-cdup)"
+  zaw-callback-edit-file "$git_base$f_path"
 }
 
 function zaw-src-git-status-rm() {
