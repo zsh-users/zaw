@@ -11,7 +11,7 @@ function zaw-src-cdr () {
     : ${(A)candidates::=${${(f)"$(cdr -l)"}##<-> ##}}
     actions=(zaw-src-cdr-cd zaw-src-cdr-insert zaw-src-cdr-prune)
     act_descriptions=("cd" "insert" "prune")
-    options+=(-m)
+    options=("-m" "-s" "${BUFFER##cd(r|) }")
 }
 
 function zaw-src-cdr-cd () {
