@@ -6,7 +6,6 @@ fi
 
 function zaw-src-docker-images() {
     desc=`$DOCKER_CMD images 2>/dev/null | awk 'NR!=1{printf"%s/%s [%s] (%s %s %s)\n", $1, $2, $3, $4, $5, $6}'`
-    cand=`echo $desc | sed `
 
     : ${(A)cand_descriptions::=${(f)desc}}
     : ${(A)candidates::=${(f)desc}}
