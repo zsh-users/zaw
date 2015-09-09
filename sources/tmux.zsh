@@ -22,7 +22,11 @@ function zaw-src-tmux() {
 zaw-register-src -n tmux zaw-src-tmux
 
 function zaw-callback-tmux-attach() {
-    BUFFER="tmux attach -t ${(q)1}"
+    if [ -z $TMUX ]; then
+        BUFFER="tmux attach -t ${(q)1}"
+    else
+        BUFFER="tmux switch-client -t ${(q)1}"
+    fi
     zle accept-line
 }
 
