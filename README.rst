@@ -34,25 +34,25 @@ sources
 
 currently these sources are available:
 
-  - ack
-  - applications
-  - bookmark
-  - git-branches
-  - git-recent-all-branches
-  - git-recent-branches
-  - git-files
-  - git-files-legacy
-  - git-status
-  - history
-  - open-file
-  - perldoc
-  - process
-  - screens
-  - ssh-hosts
-  - tmux
-  - fasd
-  - fasd-directories
-  - fasd-files
+- ack
+- applications
+- bookmark
+- git-branches
+- git-recent-all-branches
+- git-recent-branches
+- git-files
+- git-files-legacy
+- git-status
+- history
+- open-file
+- perldoc
+- process
+- screens
+- ssh-hosts
+- tmux
+- fasd
+- fasd-directories
+- fasd-files
 
 (Note: git-files-legacy is an alternative for git-files.
 git-files classifies modified files, git-files-legacy doesn't do it for
@@ -64,9 +64,9 @@ Installation is easiest with a plugin manager such as
 `zgen <https://github.com/tarjoilija/zgen>`_.  Otherwise you can just source the
 .zsh file that contains the source.
 
-  - calibre source: https://github.com/junkblocker/calibre-zaw-source
-  - MPD source: https://github.com/willghatch/zsh-zaw-mpd
-  - todoman source: https://github.com/willghatch/zsh-zaw-todoman
+- calibre source: https://github.com/junkblocker/calibre-zaw-source
+- MPD source: https://github.com/willghatch/zsh-zaw-mpd
+- todoman source: https://github.com/willghatch/zsh-zaw-todoman
 
 shortcut widgets
 ================
