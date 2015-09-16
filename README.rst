@@ -64,6 +64,7 @@ Installation is easiest with a plugin manager such as
 `zgen <https://github.com/tarjoilija/zgen>`_.  Otherwise you can just source the
 .zsh file that contains the source.
 
+  - calibre source: https://github.com/junkblocker/calibre-zaw-source
   - MPD source: https://github.com/willghatch/zsh-zaw-mpd
   - todoman source: https://github.com/willghatch/zsh-zaw-todoman
 
