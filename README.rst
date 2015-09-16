@@ -58,6 +58,15 @@ currently these sources are available:
 git-files classifies modified files, git-files-legacy doesn't do it for
 performance reason.)
 
+Additional sources can be installed as third-party plugins.  Here is a list of all
+the ones we know about.  Please let us know about any more you find or make!
+Installation is easiest with a plugin manager such as 
+`zgen <https://github.com/tarjoilija/zgen>`_.  Otherwise you can just source the
+.zsh file that contains the source.
+
+  - MPD source: https://github.com/willghatch/zsh-zaw-mpd
+  - todoman source: https://github.com/willghatch/zsh-zaw-todoman
+
 shortcut widgets
 ================
 
@@ -158,6 +167,16 @@ ZAW_EDITOR_JUMP_PARAM   open editor command with line params.
                         %LINE% is replaced by line number.
                         %FILE% is replaced by file path.
                         default +%LINE% %FILE%
+
+
+making sources
+==============
+
+If you want to make another source, look in the ``sources`` directory to see
+examples.  Please put them in a git repository, and follow the
+<name>.plugin.zsh naming convention so zsh plugin managers like zgen and
+antigen can load them easily.  Let us know about your new plugins so we can add
+them to our list!
 
 license
 =======
