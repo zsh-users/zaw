@@ -66,6 +66,7 @@ Installation is easiest with a plugin manager such as
 
 - calibre source: https://github.com/junkblocker/calibre-zaw-source
 - MPD source: https://github.com/willghatch/zsh-zaw-mpd
+- systemd source: https://github.com/termoshtt/zaw-systemd
 - todoman source: https://github.com/willghatch/zsh-zaw-todoman
 
 shortcut widgets
@@ -173,11 +174,16 @@ ZAW_EDITOR_JUMP_PARAM   open editor command with line params.
 making sources
 ==============
 
-If you want to make another source, look in the ``sources`` directory to see
-examples.  Please put them in a git repository, and follow the
-<name>.plugin.zsh naming convention so zsh plugin managers like zgen and
-antigen can load them easily.  Let us know about your new plugins so we can add
-them to our list!
+If you want to make another source, please do!  Look at https://github.com/termoshtt/zaw-systemd
+as an example of how to make a source repo.  Note that it uses the <name>.plugin.zsh
+convention that plugin managers like zgen and antigen expect for its main file.
+The sources directory contains the files for the actual sources.  All the sources
+in this repository's ``sources`` directory are good references as well for what
+the source files should look like.  They tend to be quite simple.
+If your source requires any additional configuration or dependencies, be sure to
+list all of that in your project's README file.
+
+Let us know when you make new plugins so we can add them to our list!
 
 license
 =======
