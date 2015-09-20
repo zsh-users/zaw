@@ -4,7 +4,7 @@
 # zaw source for recent directories
 #
 
-(( $+functions[cdr] )) || return
+autoload -Uz cdr
 
 function zaw-src-cdr () {
     setopt local_options extended_glob
