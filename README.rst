@@ -34,25 +34,34 @@ sources
 
 currently these sources are available:
 
-- ack
+- aliases
 - applications
 - bookmark
+- cdr (needs cdr enabled.  Google it or use `this packaged version <https://github.com/willghatch/zsh-cdr>`_)
+- commands
+- fasd
+- fasd-directories
+- fasd-files
+- functions
 - git-branches
 - git-recent-all-branches
 - git-recent-branches
 - git-files
 - git-files-legacy
+- git-log
+- git-reflog
 - git-status
 - history
+- locate
 - open-file
 - perldoc
 - process
+- programs
 - screens
+- searcher (ag/ack)
 - ssh-hosts
 - tmux
-- fasd
-- fasd-directories
-- fasd-files
+- widgets
 
 (Note: git-files-legacy is an alternative for git-files.
 git-files classifies modified files, git-files-legacy doesn't do it for
