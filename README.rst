@@ -75,9 +75,9 @@ Installation is easiest with a plugin manager such as
 
 - calibre source: https://github.com/junkblocker/calibre-zaw-source
 - MPD source: https://github.com/willghatch/zsh-zaw-mpd
-- systemd source: https://github.com/termoshtt/zaw-systemd
-- todoman source: https://github.com/willghatch/zsh-zaw-todoman
 - `pass <http://www.passwordstore.org>`_ source: https://gist.github.com/f440/9992963
+- systemd source: https://github.com/termoshtt/zaw-systemd
+- `todoman <https://github.com/hobarrera/todoman>`_ source: https://github.com/willghatch/zsh-zaw-todoman
 
 shortcut widgets
 ================
