@@ -39,6 +39,7 @@ currently these sources are available:
 - bookmark
 - cdr (needs cdr enabled.  Google it or use `this packaged version <https://github.com/willghatch/zsh-cdr>`_)
 - commands
+- command-output
 - fasd
 - fasd-directories
 - fasd-files
