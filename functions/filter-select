@@ -699,7 +699,7 @@ function _filter-select-init-keybind() {
 }
 
 function _filter-select-read-keys() {
-    local key key2 key3 key4
+    local key key2 key3 nkey
     integer ret
 
     read -k key
@@ -708,25 +708,30 @@ function _filter-select-read-keys() {
     if [[ '#key' -eq '#\\e' ]]; then
         # M-...
         read -t $(( KEYTIMEOUT / 1000 )) -k key2
-        if [[ "${key2}" == ['['O] ]]; then
-            # cursor keys
+        if [[ "${key2}" == 'O' ]]; then
+            # ^[O (SS3) affects next character only.
+            # Example: cursor keys on some terminals.
             read -k key3
             ret=$?
-            if [[ "${key3}" == [0-9] ]]; then
-                # Home, End, PgUp, PgDn ...
-                read -k key4
-                ret=$?
-                reply="${key}${key2}${key3}${key4}"
-            else
-                reply="${key}${key2}${key3}"
-            fi
+            reply="${key}${key2}${key3}"
         else
-            reply="${key}${key2}"
+            if [[ "${key2}" == '[' ]]; then
+                # ^[[ (CSI) starts a sequence of [0-9;?] terminated by [@-~].
+                # Examples: Home, End, PgUp, PgDn ...
+                reply="${key}${key2}"
+                while true; do
+                    read -k nkey
+                    reply+=$nkey
+                    ret=$?
+                    (( $ret == 0 )) && [[ "${nkey}" =~ '^[0-9;?]$' ]] || break
+                done
+            else
+                reply="${key}${key2}"
+            fi
         fi
     else
         reply="${key}"
     fi
-
     return $ret
 }
 
