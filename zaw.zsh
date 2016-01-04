@@ -66,7 +66,7 @@ function zaw-register-src() {
 
     # define shortcut function
     widget_name="zaw-${(L)name// /-}"
-    eval "function ${widget_name} { zle zaw ${func} }"
+    eval "function ${widget_name} { zle zaw ${func} \$@ }"
     eval "zle -N ${widget_name}"
 }
 
