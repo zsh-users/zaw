@@ -1,7 +1,7 @@
 zmodload zsh/parameter
 
 function zaw-src-history() {
-    if [[ -o hist_find_no_dups ]]; then
+    if zstyle -t ':filter-select' hist-find-no-dups ; then
         candidates=(${(@vu)history})
     else
         cands_assoc=("${(@kv)history}")
