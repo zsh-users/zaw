@@ -35,7 +35,7 @@ function zaw-bookmark-execute() {
 function zaw-bookmark-add() {
     local -a bookmarks
 
-    : >> "${BOOKMARKFILE}"
+    : >>| "${BOOKMARKFILE}"
     (
         if zsystem flock -t 5 "${BOOKMARKFILE}"; then
             bookmarks=("${(f)$(< "${BOOKMARKFILE}")}" "${(q@)@}")
@@ -44,7 +44,7 @@ function zaw-bookmark-add() {
             bookmarks=("${(@)bookmarks:#}")
 
             # remove duplicated lines, sort and write to ${BOOKMARKFILE}
-            print -rl -- "${(@un)bookmarks}" > "${BOOKMARKFILE}"
+            print -rl -- "${(@un)bookmarks}" >| "${BOOKMARKFILE}"
         else
             print "can't acquire lock for '${BOOKMARKFILE}'" >&2
             exit 1
@@ -66,7 +66,7 @@ function zaw-bookmark-remove() {
     local s
     local -a bookmarks
 
-    : >> "${BOOKMARKFILE}"
+    : >>| "${BOOKMARKFILE}"
     (
         if zsystem flock -t 5 "${BOOKMARKFILE}"; then
             bookmarks=("${(f)$(< "${BOOKMARKFILE}")}")
@@ -75,7 +75,7 @@ function zaw-bookmark-remove() {
             done
 
             # remove duplicated lines, sort and write to ${BOOKMARKFILE}
-            print -rl -- "${(@un)bookmarks}" > "${BOOKMARKFILE}"
+            print -rl -- "${(@un)bookmarks}" >| "${BOOKMARKFILE}"
         else
             print "can't acquire lock for '${BOOKMARKFILE}'" >&2
             exit 1
