@@ -153,6 +153,7 @@ and these zstyles to customize styles::
   ':filter-select' case-insensitive
   ':filter-select' extended-search
   ':filter-select' hist-find-no-dups
+  ':filter-select' escape-descriptions
 
   example:
     zstyle ':filter-select:highlight' matched fg=yellow,standout
@@ -162,6 +163,7 @@ and these zstyles to customize styles::
     zstyle ':filter-select' case-insensitive yes # enable case-insensitive search
     zstyle ':filter-select' extended-search yes # see below
     zstyle ':filter-select' hist-find-no-dups yes # ignore duplicates in history source
+    zstyle ':filter-select' escape-descriptions no # display literal newlines, not \n, etc
 
   extended-search:
       If this style set to be true value, the searching bahavior will be

@@ -397,11 +397,13 @@ function filter-select() {
 
                     desc_disp="${desc}"
 
-                    # escape \r\n\t\
-                    desc_disp="${desc_disp//\\/\\\\}"
-                    desc_disp="${desc_disp//$'\n'/\\n}"
-                    desc_disp="${desc_disp//$'\r'/\\r}"
-                    desc_disp="${desc_disp//$'\t'/\\t}"
+                    if zstyle -T ':filter-select' escape-descriptions ; then
+                        # escape \r\n\t\
+                        desc_disp="${desc_disp//\\/\\\\}"
+                        desc_disp="${desc_disp//$'\n'/\\n}"
+                        desc_disp="${desc_disp//$'\r'/\\r}"
+                        desc_disp="${desc_disp//$'\t'/\\t}"
+                    fi
 
                     mark_idx="${marked_lines[(ie)${i}]}"
                     (( is_marked = mark_idx <= $#marked_lines ))
