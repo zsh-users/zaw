@@ -210,7 +210,7 @@ function filter-select() {
         candidates+=( $i "${cand}" )
     done
 
-    if (( $#descriptions == 0 )); then
+    if (( ${#descriptions} == 0 )); then
         # copy candidates
         descriptions=("${(@kv)candidates}")
         # add number
@@ -249,7 +249,7 @@ function filter-select() {
             init_region_highlight+="${hi}"
         else
             print -r -- "${hi}" | read start end spec
-            init_region_highlight+="P$(( start + $#orig_predisplay )) $(( end + $#orig_predisplay )) $spec"
+            init_region_highlight+="P$(( start + ${#orig_predisplay} )) $(( end + ${#orig_predisplay} )) $spec"
         fi
     done
 
@@ -268,7 +268,7 @@ function filter-select() {
             set-mark-command)
                 if (( markable )); then
                     # check if ${selected_index} is already in the marked_lines
-                    if (( ${marked_lines[(ie)${selected_index}]} <= $#marked_lines )); then
+                    if (( ${marked_lines[(ie)${selected_index}]} <= ${#marked_lines} )); then
                         # remove selected_index
                         marked_lines=("${(@)marked_lines:#${selected_index}}")
                     else
@@ -355,7 +355,7 @@ function filter-select() {
             displays=()
             offset="${#BUFFER}"
             if [[ -n "${title}" ]]; then
-                offset+=$(( 1 + $#title ))
+                offset+=$(( 1 + ${#title} ))
             fi
 
             selected=""
@@ -406,7 +406,7 @@ function filter-select() {
                     fi
 
                     mark_idx="${marked_lines[(ie)${i}]}"
-                    (( is_marked = mark_idx <= $#marked_lines ))
+                    (( is_marked = mark_idx <= ${#marked_lines} ))
 
                     if (( is_marked )); then
                         mark_idx_disp=" (${mark_idx})"
@@ -414,9 +414,9 @@ function filter-select() {
                         mark_idx_disp=""
                     fi
 
-                    if (( ${(m)#desc_disp} + $#mark_idx_disp > COLUMNS - 1 )); then
+                    if (( ${(m)#desc_disp} + ${#mark_idx_disp} > COLUMNS - 1 )); then
                         # strip long line
-                        desc_disp="${(mr:$(( COLUMNS - $#mark_idx_disp - 6 )):::::)desc_disp} ...${mark_idx_disp}"
+                        desc_disp="${(mr:$(( COLUMNS - ${#mark_idx_disp} - 6 )):::::)desc_disp} ...${mark_idx_disp}"
                     else
                         desc_disp="${desc_disp}${mark_idx_disp}"
                     fi
@@ -452,7 +452,7 @@ function filter-select() {
             POSTDISPLAY=$'\n'
             if [[ -n "${title}" ]]; then
                 POSTDISPLAY+="${title}"$'\n'
-                region_highlight+="${#BUFFER} $(( $#BUFFER + $#title + 1 )) ${hi_title}"
+                region_highlight+="${#BUFFER} $(( ${#BUFFER} + ${#title} + 1 )) ${hi_title}"
             fi
 
             if (( ${#displays} == 0 )); then
@@ -507,7 +507,7 @@ function filter-select() {
     else
         reply=("${bounds}" "${selected}")
         reply_marked=()
-        if (( $#marked_lines > 0 )); then
+        if (( ${#marked_lines} > 0 )); then
             for i in "${(@)marked_lines}"; do
                 reply_marked+="${candidates[${i}]}"
             done
@@ -632,7 +632,7 @@ function _filter-select-buffer-words() {
         : ${(A)a::=${a/#'~(#i)*\^'/'~(#i)(#s)'}}
     fi
     : ${(PA)place::=$a}
-    (( $#a > 1 )) || (( $#a == 1 )) && [[ -n "$a" ]]
+    (( ${#a} > 1 )) || (( ${#a} == 1 )) && [[ -n "$a" ]]
 }
 
 function _filter-select-init-keybind() {

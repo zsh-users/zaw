@@ -100,20 +100,20 @@ function zaw() {
 
     reply=()
 
-    if (( $#cand_descriptions )); then
+    if (( ${#cand_descriptions} )); then
         options=("-d" "cand_descriptions" "${(@)options}")
     fi
     # TODO: cand_descriptions_assoc
 
     # call filter-select to allow user select item
-    if (( $#cands_assoc )); then
+    if (( ${#cands_assoc} )); then
         filter-select -e select-action -A cands_assoc "${(@)options}"
     else
         filter-select -e select-action "${(@)options}" -- "${(@)candidates}"
     fi
 
     if [[ $? == 0 ]]; then
-        if (( $#reply_marked > 0 )); then
+        if (( ${#reply_marked} > 0 )); then
             selected=("${(@)reply_marked}")
         else
             selected=("${reply[2]}")
