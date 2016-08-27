@@ -9,7 +9,7 @@
 zmodload zsh/system
 autoload -U fill-vars-or-accept
 
-BOOKMARKFILE="${BOOKMARKFILE:-"${HOME}/.zaw-bookmarks"}"
+typeset -g BOOKMARKFILE="${BOOKMARKFILE:-"${HOME}/.zaw-bookmarks"}"
 
 function zaw-src-bookmark() {
     if [[ -f "${BOOKMARKFILE}" ]]; then

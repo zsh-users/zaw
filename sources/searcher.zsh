@@ -2,6 +2,8 @@
 
 autoload -U read-from-minibuffer
 
+typeset -g ZAW_SEARCHER_CMD
+
 if (( $+commands[ag] )); then
     ZAW_SEARCHER_CMD="ag"
 elif (( $+commands[ack-grep] )); then

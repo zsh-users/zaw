@@ -114,6 +114,8 @@
 #
 #     If you want to search these metacharacters, please doubly escape them.
 
+typeset -ga reply_marked
+
 function filter-select() {
     emulate -L zsh
     setopt local_options extended_glob
@@ -129,6 +131,7 @@ function filter-select() {
     local key cand lines selected cand_disp buffer_pre_zle last_buffer initbuffer=''
     local opt pattern msg unused title='' exit_pattern nl=$'\n'
     local selected_index mark_idx_disp hi start end spec
+    local desc desc_num desc_disp bounds
 
     local -a displays matched_desc_keys match mbegin mend outs exit_wigdets
     local -a init_region_highlight marked_lines
