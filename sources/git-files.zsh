@@ -24,7 +24,7 @@ function zaw-src-git-files-classify-aux() {
     local -a as ms ds os
     : ${(A)as::=${(0)"$(git ls-files $(git rev-parse --show-cdup) -z)"}}
     : ${(A)ms::=${(0)"$(git ls-files $(git rev-parse --show-cdup) -z -m)"}}
-    if (( $#ms == 0 )) || (( $#ms == 1 )) &&  [[ -z "$ms" ]]; then
+    if (( ${#ms} == 0 )) || (( ${#ms} == 1 )) &&  [[ -z "$ms" ]]; then
         candidates=($as)
         return 0
     fi

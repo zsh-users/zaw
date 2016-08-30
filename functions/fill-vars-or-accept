@@ -27,7 +27,7 @@ function fill-vars-or-accept() {
 
     local POSTDISPLAY=$'\n''[press tab key to move cursor to next variable]'
 
-    while _buffer_has_vars && (( CURSOR < $#BUFFER )); do
+    while _buffer_has_vars && (( CURSOR < ${#BUFFER} )); do
         orig_region_highlight=("${(@)region_highlight}")
         _highlight-right-vars
         zle -Rc
@@ -52,10 +52,10 @@ function fill-vars-or-accept() {
             if [[ -n "${REPLY}" ]]; then
                 if [[ "${cmd_name}" == self-insert* ]]; then
                     # remove current var
-                    RBUFFER="${RBUFFER[$(( $#REPLY + 1)),-1]}"
+                    RBUFFER="${RBUFFER[$(( ${#REPLY} + 1)),-1]}"
                 elif [[ "${cmd_name}" == (*-delete-*|*-kill-*) ]]; then
                     # remove current var and continue
-                    RBUFFER="${RBUFFER[$(( $#REPLY + 1)),-1]}"
+                    RBUFFER="${RBUFFER[$(( ${#REPLY} + 1)),-1]}"
                     continue
                 fi
             fi
@@ -78,7 +78,7 @@ function _highlight-right-vars() {
         if [[ -n "${REPLY}" ]]; then
             region_highlight+=( "${offset} $(( offset + ${#REPLY} )) standout" )
             rbuffer="${rbuffer[$(( ${#REPLY}  )),-1]}"
-            (( offset += $#REPLY - 1 ))
+            (( offset += ${#REPLY} - 1 ))
         fi
 
         region_highlight+=( "${(f)${(S)rbuffer//*(#b)(${~FILL_VARS_PATTERN})/$(( offset + mbegin[1] - 1 )) $(( offset + mend[1] )) fg=yellow,standout${nl}}%$nl*}" )
@@ -102,7 +102,7 @@ function go-to-next-var() {
         : "${(S)rrbuffer/*(#b)(${~FILL_VARS_PATTERN})}"
         (( CURSOR += ${mbegin[1]} ))
     else
-        (( CURSOR = $#BUFFER ))
+        (( CURSOR = ${#BUFFER} ))
     fi
 }
 
