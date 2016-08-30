@@ -72,7 +72,7 @@ function zaw-register-src() {
 
 
 function zaw() {
-    local action ret
+    local action ret func
     local -a reply candidates actions act_descriptions options selected cand_descriptions
     local -A cands_assoc
 
