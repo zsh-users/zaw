@@ -251,7 +251,7 @@ function filter-select() {
         if [[ "${hi}" == P* ]]; then
             init_region_highlight+="${hi}"
         else
-            print -r -- "${hi}" | read start end spec
+            print -r -- "${hi}" | read -d ' ' start end spec
             init_region_highlight+="P$(( start + ${#orig_predisplay} )) $(( end + ${#orig_predisplay} )) $spec"
         fi
     done
