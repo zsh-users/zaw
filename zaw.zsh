@@ -127,14 +127,18 @@ function zaw() {
                 action="${actions[2]}"
                 ;;
             select-action)
-                reply=()
-                filter-select -e select-action -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
-                ret=$?
-
-                if [[ $ret == 0 ]]; then
-                    action="${reply[2]}"
+                if [[ ${#actions} -eq 1 ]]; then
+                    action="${actions[1]}"
                 else
-                    return 1
+                    reply=()
+                    filter-select -e select-action -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
+                    ret=$?
+
+                    if [[ $ret == 0 ]]; then
+                        action="${reply[2]}"
+                    else
+                        return 1
+                    fi
                 fi
                 ;;
         esac
