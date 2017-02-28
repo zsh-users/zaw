@@ -128,7 +128,7 @@ function zaw() {
                 ;;
             select-action)
                 reply=()
-                filter-select -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
+                filter-select -e select-action -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
                 ret=$?
 
                 if [[ $ret == 0 ]]; then
