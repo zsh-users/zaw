@@ -431,7 +431,7 @@ function filter-select() {
                         for pattern in \
                             "(${(j.|.)${(@M)words:#*'(#e)'}})" \
                             "(${(j.|.)${(@)words:#(\~*|*'(#e)')}})" ; do
-                            if [[ "$pattern" != '()' ]]; then
+                            if [[ "$pattern" != '()' ]]; then #'
                                 region_highlight+=( "${(f)${(S)desc_disp//*(#b)${~pattern}/$(( offset + mbegin[1] )) $(( offset + mend[1] + 1 )) ${hi_matched}${nl}}%$nl*}" )
                             fi
                         done
