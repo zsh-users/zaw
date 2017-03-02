@@ -133,6 +133,7 @@ function filter-select() {
     local selected_index mark_idx_disp hi start end spec
     local desc desc_num desc_disp bounds no_match_highlight
 
+    local -a external_keymaps
     local -a displays matched_desc_keys match mbegin mend outs exit_wigdets
     local -a init_region_highlight marked_lines
     local -A candidates descriptions matched_descs
@@ -140,7 +141,7 @@ function filter-select() {
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num ii num_desc
     integer offset display_bottom_line selected_num rev=0 ret=0 enum=0
     integer mark_idx markable=0 is_marked
-    integer keep_query_text=0
+    integer keep_query_text=0 ignore_control_characters=0
 
     local hi_selected hi_matched hi_marked hi_title hi_error
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
@@ -161,7 +162,7 @@ function filter-select() {
     descriptions=()
     exit_wigdets=(accept-line accept-search send-break)
 
-    while getopts 't:A:d:D:nrme:s:ki' opt; do
+    while getopts 't:A:d:D:Inrme:s:M:ki' opt; do
         case "${opt}" in
             t)
                 title="${OPTARG}"
@@ -182,6 +183,9 @@ function filter-select() {
                 # copy input assc array
                 descriptions=("${(@kvP)${OPTARG}}")
                 ;;
+            I)
+                ignore_control_characters=1
+                ;;
             n)
                 enum=1
                 ;;
@@ -199,6 +203,12 @@ function filter-select() {
             s)
                 initbuffer="${OPTARG}"
                 ;;
+            M)
+                # Allow widgets to apply additional keymaps
+                external_keymaps+="${OPTARG}"
+                ignore_control_characters=1
+                ;;
+
             k)
                 # If there are no matches, reply with the query text
                 keep_query_text=1
@@ -309,8 +319,15 @@ function filter-select() {
                 (( cursor_line = desc_num ))
                 ;;
 
-            self-insert|undefined-key)
+            self-insert)
                 LBUFFER="${LBUFFER}${key}"
+                _filter-select-reset
+                ;;
+
+            undefined-key)
+                if (( ignore_control_characters == 0 )); then
+                    LBUFFER="${LBUFFER}${key}"
+                fi
                 _filter-select-reset
                 ;;
 
@@ -449,6 +466,10 @@ function filter-select() {
                     if (( disp_num == cursor_line )); then
                         region_highlight+="${offset} $(( offset + ${#desc_disp} + 1 )) ${hi_selected}"
                         selected="${candidates[$i]}"
+
+                        typeset -g FILTER_SELECT_SELECTED
+                        FILTER_SELECT_SELECTED="${selected}"
+
                         (( selected_num = display_head_line + disp_num - 1 ))
                         selected_index="${i}"
                     fi
@@ -495,10 +516,38 @@ function filter-select() {
             break
         else
             key="${reply}"
-            # TODO: key sequence
-            outs=("${(z)$( bindkey -M filterselect -- "${key}" )}")
+            key_code_widget="undefined-key"
+
+            for kmap in "${(@)external_keymaps}"; do
+                # # return value: [ "KeyCode", "Widget" ]
+                # # e.g., "^?" backward-delete-char
+                outs=("${(z)$( bindkey -M $kmap -- "${key}" )}")
+                key_code="${outs[1]}"
+                key_code_widget="${outs[2]}"
+                [[ $? == 0 ]] && [[ $key_code_widget != "undefined-key" ]] && break
+            done
+
+            if [[ -z $key_code_widget ]] || [[ $key_code_widget == "undefined-key" ]]; then
+                outs=("${(z)$( bindkey -M filterselect -- "${key}" )}")
+                key_code="${outs[1]}"
+                key_code_widget="${outs[2]}"
+            fi
+
+            # if [[ $key_code_widget == "undefined-key" ]]; then
+            #     echo "keycode undefined: $key_code" >> /tmp/zaw.log
+            # fi
+
+            # key_code=$(echo $key_code  | od -c)
+            key_code=$(echo $key_code  | tr -d '"')
+
+            if [[ $key_code =~ "^.$" ]]; then
+                # echo "single key, setting to 'self-insert': $key_code" >> /tmp/zaw.log
+                key_code_widget=self-insert
+            fi
+
             # XXX: will $outs contains more than two values?
-            bounds="${outs[2]}"
+            bounds="$key_code_widget"
+            # unset key_code
         fi
     done
 
