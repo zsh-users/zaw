@@ -131,7 +131,7 @@ function filter-select() {
     local key cand lines selected cand_disp buffer_pre_zle last_buffer initbuffer=''
     local opt pattern msg unused title='' exit_pattern nl=$'\n'
     local selected_index mark_idx_disp hi start end spec
-    local desc desc_num desc_disp bounds
+    local desc desc_num desc_disp bounds no_match_highlight
 
     local -a displays matched_desc_keys match mbegin mend outs exit_wigdets
     local -a init_region_highlight marked_lines
@@ -140,6 +140,7 @@ function filter-select() {
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num ii num_desc
     integer offset display_bottom_line selected_num rev=0 ret=0 enum=0
     integer mark_idx markable=0 is_marked
+    integer keep_query_text=0
 
     local hi_selected hi_matched hi_marked hi_title hi_error
     zstyle -s ':filter-select:highlight' selected hi_selected || hi_selected='standout'
@@ -160,7 +161,7 @@ function filter-select() {
     descriptions=()
     exit_wigdets=(accept-line accept-search send-break)
 
-    while getopts 't:A:d:D:nrme:s:i' opt; do
+    while getopts 't:A:d:D:nrme:s:ki' opt; do
         case "${opt}" in
             t)
                 title="${OPTARG}"
@@ -197,6 +198,10 @@ function filter-select() {
                 ;;
             s)
                 initbuffer="${OPTARG}"
+                ;;
+            k)
+                # If there are no matches, reply with the query text
+                keep_query_text=1
                 ;;
             i)
                 # do nothing. only keybinds are initialized
@@ -462,10 +467,18 @@ function filter-select() {
                 if (( ${#candidates} == 0 )); then
                     msg='no candidate'
                 else
-                    msg='pattern not found'
+                    if (( keep_query_text )); then
+
+                        msg="input: ${BUFFER}"
+                        no_match_highlight=$hi_marked
+                    else
+                        msg='pattern not found'
+                        no_match_highlight=$hi_error
+                    fi
+
                 fi
                 POSTDISPLAY+="${msg}"
-                region_highlight+="${offset} $(( offset + ${#msg} + 1 )) ${hi_error}"
+                region_highlight+="${offset} $(( offset + ${#msg} + 1 )) ${no_match_highlight}"
             fi
 
             POSTDISPLAY+="${(F)displays}"$'\n'"[${selected_num}/${desc_num}]"
@@ -500,6 +513,12 @@ function filter-select() {
         reply=()
         reply_marked=()
         ret=1
+
+    elif (( ${#displays} == 0 )) && (( keep_query_text )); then
+        # Reply with contents of buffer
+        reply=("${bounds}" "${LBUFFER}")
+        reply_marked=()
+        ret=0
 
     elif (( ${#displays} == 0 )); then
         # no candidate matches pattern (no candidate selected)
