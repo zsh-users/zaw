@@ -131,12 +131,13 @@ function filter-select() {
     local key cand lines selected cand_disp buffer_pre_zle last_buffer initbuffer=''
     local opt pattern msg unused title='' exit_pattern nl=$'\n'
     local selected_index mark_idx_disp hi start end spec
-    local desc desc_num desc_disp bounds no_match_highlight
+    local desc desc_num desc_disp bounds no_match_highlight candidate_fn
 
     local -a external_keymaps
     local -a displays matched_desc_keys match mbegin mend outs exit_wigdets
     local -a init_region_highlight marked_lines
     local -A candidates descriptions matched_descs
+    typeset -ga filter_select_candidates filter_select_descriptions
 
     integer i bottom_lines cursor_line=1 display_head_line=1 cand_num disp_num ii num_desc
     integer offset display_bottom_line selected_num rev=0 ret=0 enum=0
@@ -162,22 +163,55 @@ function filter-select() {
     descriptions=()
     exit_wigdets=(accept-line accept-search send-break)
 
-    while getopts 't:A:d:D:Inrme:s:M:ki' opt; do
+    _copy-candidates-to-descriptions() {
+        descriptions=("${(@kv)candidates}")
+        # add number
+        if (( enum )); then
+            num_desc="${#descriptions}"
+            for i in {1.."$num_desc"}; do
+                if (( rev )); then
+                    ii="$(($num_desc-$i+1))"
+                else
+                    ii="$i"
+                fi
+                descriptions[$i]="${(r.5.)ii} ${descriptions[$i]}"
+            done
+        fi
+    }
+
+    # Sets the global $candidates variable from a named array
+    _filter-select-set-candidates() {
+        integer i=0
+        for cand in "${(@P)${1}}"; do
+            (( i++ ))
+            candidates+=( $i "${cand}" )
+        done
+
+        if (( ${#descriptions} == 0 )); then
+            _copy-candidates-to-descriptions
+        fi
+    }
+
+    # Sets the global $descriptions variable from a named array
+    _filter-select-set-descriptions() {
+        # copy input array
+        integer i=0
+        for desc in "${(@P)${1}}"; do
+            (( i++ ))
+            descriptions+=( $i "${desc}" )
+        done
+    }
+
+    while getopts 't:A:c:d:D:Inrme:s:M:f:ki' opt; do
         case "${opt}" in
             t)
                 title="${OPTARG}"
                 ;;
             A)
-                # copy input assc array
                 candidates=("${(@kvP)${OPTARG}}")
                 ;;
             d)
-                # copy input array
-                integer i=0
-                for desc in "${(@P)${OPTARG}}"; do
-                    (( i++ ))
-                    descriptions+=( $i "${desc}" )
-                done
+                _filter-select-set-candidates "${OPTARG}"
                 ;;
             D)
                 # copy input assc array
@@ -213,6 +247,10 @@ function filter-select() {
                 # If there are no matches, reply with the query text
                 keep_query_text=1
                 ;;
+            f)
+                # Function to regenerate candidates
+                candidate_fn="${OPTARG}"
+                ;;
             i)
                 # do nothing. only keybinds are initialized
                 return
@@ -222,6 +260,8 @@ function filter-select() {
     if (( OPTIND > 1 )); then
         shift $(( OPTIND - 1 ))
     fi
+
+    # Set up initial candidates
     integer i=0
     for cand in "$@"; do
         (( i++ ))
@@ -229,20 +269,7 @@ function filter-select() {
     done
 
     if (( ${#descriptions} == 0 )); then
-        # copy candidates
-        descriptions=("${(@kv)candidates}")
-        # add number
-        if (( enum )); then
-            num_desc="${#descriptions}"
-            for i in {1.."$num_desc"}; do
-                if (( rev )); then
-                    ii="$(($num_desc-$i+1))"
-                else
-                    ii="$i"
-                fi
-                descriptions[$i]="${(r.5.)ii} ${descriptions[$i]}"
-            done
-        fi
+        _copy-candidates-to-descriptions
     fi
 
     desc_num="${#descriptions}"
@@ -489,7 +516,6 @@ function filter-select() {
                     msg='no candidate'
                 else
                     if (( keep_query_text )); then
-
                         msg="input: ${BUFFER}"
                         no_match_highlight=$hi_marked
                     else
@@ -518,15 +544,27 @@ function filter-select() {
             key="${reply}"
             key_code_widget="undefined-key"
 
+            # First, search in external keymaps
             for kmap in "${(@)external_keymaps}"; do
                 # # return value: [ "KeyCode", "Widget" ]
                 # # e.g., "^?" backward-delete-char
                 outs=("${(z)$( bindkey -M $kmap -- "${key}" )}")
                 key_code="${outs[1]}"
                 key_code_widget="${outs[2]}"
-                [[ $? == 0 ]] && [[ $key_code_widget != "undefined-key" ]] && break
+                if [[ $? == 0 ]] && [[ $key_code_widget != "undefined-key" ]]; then
+                    zle $key_code_widget
+                    # reload candidates here
+                    if [[ ! -z $candidate_fn ]]; then
+                        eval $candidate_fn
+
+                        _filter-select-set-candidates filter_select_candidates
+                        _filter-select-set-descriptions filter_select_descriptions
+                    fi
+                fi
             done
 
+            # If we didn't find it in an external keymap, look in the
+            # filterselect keymap
             if [[ -z $key_code_widget ]] || [[ $key_code_widget == "undefined-key" ]]; then
                 outs=("${(z)$( bindkey -M filterselect -- "${key}" )}")
                 key_code="${outs[1]}"
@@ -537,17 +575,16 @@ function filter-select() {
             #     echo "keycode undefined: $key_code" >> /tmp/zaw.log
             # fi
 
-            # key_code=$(echo $key_code  | od -c)
             key_code=$(echo $key_code  | tr -d '"')
 
-            if [[ $key_code =~ "^.$" ]]; then
+            # If we're ignoring control characters, change it from
+            # undefined-key to self-insert
+            if (( ignore_control_characters )) && [[ $key_code =~ "^.$" ]]; then
                 # echo "single key, setting to 'self-insert': $key_code" >> /tmp/zaw.log
                 key_code_widget=self-insert
             fi
 
-            # XXX: will $outs contains more than two values?
             bounds="$key_code_widget"
-            # unset key_code
         fi
     done
 

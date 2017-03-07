@@ -2,6 +2,20 @@
 zaw - zsh anything.el-like widget
 =================================
 
+My own fork of Zaw.
+
+Extra features:
+- Use `-k` to tell filter-select to put the contents of the buffer into the
+${reply} varible if there are no candidate matches.  Get input from the user
+and access it directly for a more powerful workflow
+- Use `-M [KEYMAP]` to have Zaw resolve keybindings from a custom keymap.
+Allows zaw sources to call their own custom zle widgets with a keyboard shortcut
+- Provide `-f candidate_generator_fn` to have Zaw refresh your candidates after
+it runs a zle widget from a custom keymap.  This allows you to run a command,
+(e.g., 'git add') and see the result in filter-select instantly
+
+
+
 install
 =======
 
@@ -70,7 +84,7 @@ performance reason.)
 
 Additional sources can be installed as third-party plugins.  Here is a list of all
 the ones we know about.  Please let us know about any more you find or make!
-Installation is easiest with a plugin manager such as 
+Installation is easiest with a plugin manager such as
 `zgen <https://github.com/tarjoilija/zgen>`_.  Otherwise you can just source the
 .zsh file that contains the source.
 
@@ -168,12 +182,12 @@ and these zstyles to customize styles::
   extended-search:
       If this style set to be true value, the searching bahavior will be
       extended as follows:
-  
+
       ^ Match the beginning of the line if the word begins with ^
       $ Match the end of the line if the word ends with $
       ! Match anything except the word following it if the word begins with !
       so-called smartcase searching
-  
+
       If you want to search these metacharacters, please doubly escape them.
 
 environment variable
