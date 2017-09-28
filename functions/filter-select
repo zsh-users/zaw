@@ -512,17 +512,14 @@ function filter-select() {
             fi
 
             if (( ${#displays} == 0 )); then
-                if (( ${#candidates} == 0 )); then
+                if (( keep_query_text )); then
+                    msg="input: ${BUFFER}"
+                    no_match_highlight=$hi_marked
+                elif (( ${#candidates} == 0 )); then
                     msg='no candidate'
                 else
-                    if (( keep_query_text )); then
-                        msg="input: ${BUFFER}"
-                        no_match_highlight=$hi_marked
-                    else
-                        msg='pattern not found'
-                        no_match_highlight=$hi_error
-                    fi
-
+                    msg='pattern not found'
+                    no_match_highlight=$hi_error
                 fi
                 POSTDISPLAY+="${msg}"
                 region_highlight+="${offset} $(( offset + ${#msg} + 1 )) ${no_match_highlight}"
