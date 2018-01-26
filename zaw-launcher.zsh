@@ -21,7 +21,7 @@ while getopts 'eh' opt; do
 
         h)
             print \
-"Usage: $0 [options] [source name]
+"Usage: $0 [src_opts] [source name]
 
 Options:
   -h     show this help

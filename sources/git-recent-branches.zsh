@@ -40,7 +40,7 @@ function zaw-src-git-recent-branches () {
         "reset hard" \
         "delete" \
         "delete force")
-    options=()
+    src_opts=()
 }
 
 function zaw-src-git-recent-all-branches () {
@@ -83,7 +83,7 @@ function zaw-src-git-recent-all-branches () {
         "reset hard" \
         "delete" \
         "delete force")
-    options=()
+    src_opts=()
 }
 
 function zaw-src-git-recent-branches-checkout () {

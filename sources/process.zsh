@@ -14,7 +14,7 @@ function zaw-src-process () {
     : ${(A)cand_descriptions::=${(f)ps}}
     actions=(zaw-callback-append-to-buffer zaw-src-process-kill)
     act_descriptions=("insert" "kill")
-    options=(-t "$title")
+    src_opts=(-t "$title")
 }
 
 function zaw-src-process-kill () {

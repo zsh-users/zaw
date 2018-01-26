@@ -19,7 +19,7 @@ function zaw-src-git-log() {
                       "cherry-pick" \
                       "create new branch from this hash value" \
                       "revert")
-    options=()
+    src_opts=()
 }
 
 function _zaw-src-git-log-strip(){

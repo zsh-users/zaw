@@ -30,7 +30,7 @@ function zaw-src-git-status() {
       "checkout" \
       "edit" \
       "rm")
-    options=()
+    src_opts=()
 }
 
 function zaw-src-git-status-add() {

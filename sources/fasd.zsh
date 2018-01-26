@@ -2,7 +2,7 @@ function zaw-src-fasd () {
     candidates=($(fasd -alR))
     actions=(zaw-callback-append-to-buffer)
     act_descriptions=("append to edit buffer")
-    options+=(-n -m)
+    src_opts+=(-n -m)
 }
 
 
@@ -10,7 +10,7 @@ function zaw-src-fasd-files () {
     candidates=($(fasd -flR))
     actions=(zaw-callback-append-to-buffer)
     act_descriptions=("append to edit buffer")
-    options+=(-n -m)
+    src_opts+=(-n -m)
 }
 
 
@@ -18,7 +18,7 @@ function zaw-src-fasd-directories () {
     candidates=($(fasd -dlR))
     actions=(zaw-callback-append-to-buffer)
     act_descriptions=("append to edit buffer")
-    options+=(-n -m)
+    src_opts+=(-n -m)
 }
 
 

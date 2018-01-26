@@ -43,7 +43,7 @@ function zaw-register-src() {
     # $cand_descriptions_assoc -> (optional) assoc array of candidates descriptions
     # $actions           -> list of callback function names that receive selected item
     # $act_descriptions  -> (optional) list of callback function descriptions
-    # $options           -> (optional) array of options passed to filter-select
+    # $src_opts           -> (optional) array of src_opts passed to filter-select
     #
     # whether one of candidates or cands-assoc is required
     local name func widget_name opts OPTARG OPTIND
@@ -73,7 +73,7 @@ function zaw-register-src() {
 
 function zaw() {
     local action ret func
-    local -a reply candidates actions act_descriptions options selected cand_descriptions
+    local -a reply candidates actions act_descriptions src_opts selected cand_descriptions
     local -A cands_assoc
 
     if [[ $# == 0 ]]; then
@@ -101,15 +101,15 @@ function zaw() {
     reply=()
 
     if (( ${#cand_descriptions} )); then
-        options=("-d" "cand_descriptions" "${(@)options}")
+        src_opts=("-d" "cand_descriptions" "${(@)src_opts}")
     fi
     # TODO: cand_descriptions_assoc
 
     # call filter-select to allow user select item
     if (( ${#cands_assoc} )); then
-        filter-select -e select-action -A cands_assoc "${(@)options}"
+        filter-select -e select-action -A cands_assoc "${(@)src_opts}"
     else
-        filter-select -e select-action "${(@)options}" -- "${(@)candidates}"
+        filter-select -e select-action "${(@)src_opts}" -- "${(@)candidates}"
     fi
 
     if [[ $? == 0 ]]; then
