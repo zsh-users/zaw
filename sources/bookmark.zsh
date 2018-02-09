@@ -17,7 +17,7 @@ function zaw-src-bookmark() {
     fi
     actions=("zaw-bookmark-execute" "zaw-callback-replace-buffer" "zaw-callback-append-to-buffer" "zaw-bookmark-remove")
     act_descriptions=("execute" "replace edit buffer" "append to edit buffer" "removed bookmark")
-    options=("-m")
+    src_opts=("-m")
 }
 
 zaw-register-src -n bookmark zaw-src-bookmark

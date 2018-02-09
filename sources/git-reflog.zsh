@@ -9,7 +9,7 @@ function zaw-src-git-reflog () {
     fi
     actions=(zaw-callback-append-to-buffer zaw-src-git-commit-checkout zaw-src-git-commit-reset zaw-src-git-commit-rebase zaw-src-git-commit-rebase-interactive zaw-src-git-commit-reset-hard)
     act_descriptions=("append to edit buffer" "checkout" "reset" "rebase" "rebase interactive from..." "reset hard")
-    options=()
+    src_opts=()
 }
 
 function zaw-src-git-commit-checkout () {

@@ -41,7 +41,7 @@ function zaw-src-git-branches() {
         "reset hard" \
         "delete" \
         "delete force")
-    options=()
+    src_opts=()
 }
 
 function zaw-src-git-branches-checkout () {
