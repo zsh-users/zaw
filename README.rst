@@ -154,6 +154,8 @@ and these zstyles to customize styles::
   ':filter-select' extended-search
   ':filter-select' hist-find-no-dups
   ':filter-select' escape-descriptions
+  ':zaw:<source-name>' default <func_name|action description>
+  ':zaw:<source-name>' alt <func_name|action description>
 
   example:
     zstyle ':filter-select:highlight' matched fg=yellow,standout
@@ -164,6 +166,10 @@ and these zstyles to customize styles::
     zstyle ':filter-select' extended-search yes # see below
     zstyle ':filter-select' hist-find-no-dups yes # ignore duplicates in history source
     zstyle ':filter-select' escape-descriptions no # display literal newlines, not \n, etc
+    zstyle ':zaw:git-files' default zaw-callback-append-to-buffer # set default action for git-files
+    zstyle ':zaw:git-files' default "append to edit buffer" # same as the example above, but using description
+    zstyle ':zaw:git-files' alt zaw-callback-edit-file # set the alt action for git-files
+    zstyle ':zaw:git-files' alt "edit file" # same as the example above, but using description
 
   extended-search:
       If this style set to be true value, the searching bahavior will be

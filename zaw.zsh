@@ -70,6 +70,29 @@ function zaw-register-src() {
     eval "zle -N ${widget_name}"
 }
 
+function zaw-replace-descriptions-with-action-names() {
+    local desc_index="${act_descriptions[(ie)$action_default]}"
+    [[ $desc_index -le ${#act_descriptions} ]] && action_default="${actions[$desc_index]}"
+    desc_index="${act_descriptions[(ie)$action_alt]}"
+    [[ $desc_index -le ${#act_descriptions} ]] && action_alt="${actions[$desc_index]}"
+}
+
+function zaw-get-action-defaults() {
+    local name func
+    func="$1"
+    for k in "${(@k)zaw_sources}"; do
+        if [[ "${zaw_sources[$k]}" == "$func" ]]; then
+            name="$k"
+            break
+        fi
+    done
+    zstyle_name="${(L)name// /-}"
+    zstyle -s ":zaw:${zstyle_name}" default action_default
+    zstyle -s ":zaw:${zstyle_name}" alt action_alt
+    zaw-replace-descriptions-with-action-names
+    [[ ${actions[(ie)$action_default]} -le ${#actions} ]] || action_default="${actions[1]}"
+    [[ ${actions[(ie)$action_alt]} -le ${#actions} ]] || action_alt="${actions[2]}"
+}
 
 function zaw() {
     local action ret func
@@ -119,17 +142,21 @@ function zaw() {
             selected=("${reply[2]}")
         fi
 
+        zaw-get-action-defaults "${func}"
+
         case "${reply[1]}" in
             accept-line)
-                action="${actions[1]}"
+                action="${action_default}"
                 ;;
             accept-search)
-                action="${actions[2]}"
+                action="${action_alt}"
                 ;;
             select-action)
                 if [[ ${#actions} -eq 1 ]]; then
                     action="${actions[1]}"
                 else
+                    act_descriptions[${actions[(ie)$action_default]}]+=" (Enter)"
+                    act_descriptions[${actions[(ie)$action_alt]}]+=" (Meta-enter)"
                     reply=()
                     filter-select -e select-action -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
                     ret=$?
