@@ -70,32 +70,31 @@ function zaw-register-src() {
     eval "zle -N ${widget_name}"
 }
 
-function zaw-replace-descriptions-with-action-names() {
-    local desc_index="${act_descriptions[(ie)$action_default]}"
-    [[ $desc_index -le ${#act_descriptions} ]] && action_default="${actions[$desc_index]}"
-    desc_index="${act_descriptions[(ie)$action_alt]}"
-    [[ $desc_index -le ${#act_descriptions} ]] && action_alt="${actions[$desc_index]}"
-}
-
-function zaw-get-action-defaults() {
+function zaw-name-from-func() {
     local name func
     func="$1"
-    for k in "${(@k)zaw_sources}"; do
-        if [[ "${zaw_sources[$k]}" == "$func" ]]; then
-            name="$k"
-            break
+    for name in "${(@k)zaw_sources}"; do
+        if [[ "${zaw_sources[$name]}" == "$func" ]]; then
+            echo "$name"
+            return
         fi
     done
-    zstyle_name="${(L)name// /-}"
-    zstyle -s ":zaw:${zstyle_name}" default action_default
-    zstyle -s ":zaw:${zstyle_name}" alt action_alt
-    zaw-replace-descriptions-with-action-names
-    [[ ${actions[(ie)$action_default]} -le ${#actions} ]] || action_default="${actions[1]}"
-    [[ ${actions[(ie)$action_alt]} -le ${#actions} ]] || action_alt="${actions[2]}"
+}
+
+function zaw-action() {
+    local idx name value
+    local -a styles=(default alt)
+    name="$1"
+    idx="$2"
+    if zstyle -s ":zaw:${name}" "${styles[$idx]}" value && [[ ${actions[(ie)$value]} -le ${#actions} ]]; then
+        echo "${value}"
+    else
+        echo "${actions[$idx]}"
+    fi
 }
 
 function zaw() {
-    local action ret func
+    local action ret func name
     local -a reply candidates actions act_descriptions src_opts selected cand_descriptions
     local -A cands_assoc
 
@@ -142,21 +141,21 @@ function zaw() {
             selected=("${reply[2]}")
         fi
 
-        zaw-get-action-defaults "${func}"
+        name=$(zaw-name-from-func "${func}")
 
         case "${reply[1]}" in
             accept-line)
-                action="${action_default}"
+                action="$(zaw-action "${name}" 1)"
                 ;;
             accept-search)
-                action="${action_alt}"
+                action="$(zaw-action "${name}" 2)"
                 ;;
             select-action)
                 if [[ ${#actions} -eq 1 ]]; then
-                    action="${actions[1]}"
+                    action="$(zaw-action "${name}" 1)"
                 else
-                    act_descriptions[${actions[(ie)$action_default]}]+=" (Enter)"
-                    act_descriptions[${actions[(ie)$action_alt]}]+=" (Meta-enter)"
+                    act_descriptions[${actions[(ie)$(zaw-action "${name}" 1)]}]+=" (Enter)"
+                    act_descriptions[${actions[(ie)$(zaw-action "${name}" 2)]}]+=" (Meta-enter)"
                     reply=()
                     filter-select -e select-action -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
                     ret=$?
