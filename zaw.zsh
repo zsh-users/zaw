@@ -154,8 +154,8 @@ function zaw() {
                 if [[ ${#actions} -eq 1 ]]; then
                     action="$(zaw-action "${name}" 1)"
                 else
-                    act_descriptions[${actions[(ie)$(zaw-action "${name}" 1)]}]+=" (Enter)"
-                    act_descriptions[${actions[(ie)$(zaw-action "${name}" 2)]}]+=" (Meta-enter)"
+                    act_descriptions[${actions[(ie)$(zaw-action "${name}" 1)]}]+=" (Default)"
+                    act_descriptions[${actions[(ie)$(zaw-action "${name}" 2)]}]+=" (Alternative)"
                     reply=()
                     filter-select -e select-action -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
                     ret=$?
