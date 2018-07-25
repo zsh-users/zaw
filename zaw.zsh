@@ -83,7 +83,8 @@ function zaw-name-from-func() {
 
 function zaw-action() {
     local idx name value
-    local -a styles=(default alt)
+    local -a styles
+    styles=(default alt)
     name="$1"
     idx="$2"
     if zstyle -s ":zaw:${name}" "${styles[$idx]}" value && [[ ${actions[(ie)$value]} -le ${#actions} ]]; then
