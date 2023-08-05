@@ -43,7 +43,7 @@ function zaw-register-src() {
     # $cand_descriptions_assoc -> (optional) assoc array of candidates descriptions
     # $actions           -> list of callback function names that receive selected item
     # $act_descriptions  -> (optional) list of callback function descriptions
-    # $options           -> (optional) array of options passed to filter-select
+    # $src_opts           -> (optional) array of src_opts passed to filter-select
     #
     # whether one of candidates or cands-assoc is required
     local name func widget_name opts OPTARG OPTIND
@@ -70,10 +70,33 @@ function zaw-register-src() {
     eval "zle -N ${widget_name}"
 }
 
+function zaw-name-from-func() {
+    local name func
+    func="$1"
+    for name in "${(@k)zaw_sources}"; do
+        if [[ "${zaw_sources[$name]}" == "$func" ]]; then
+            echo "$name"
+            return
+        fi
+    done
+}
+
+function zaw-action() {
+    local idx name value
+    local -a styles
+    styles=(default alt)
+    name="$1"
+    idx="$2"
+    if zstyle -s ":zaw:${name}" "${styles[$idx]}" value && [[ ${actions[(ie)$value]} -le ${#actions} ]]; then
+        echo "${value}"
+    else
+        echo "${actions[$idx]}"
+    fi
+}
 
 function zaw() {
-    local action ret func
-    local -a reply candidates actions act_descriptions options selected cand_descriptions
+    local action ret func name
+    local -a reply candidates actions act_descriptions src_opts selected cand_descriptions
     local -A cands_assoc
 
     if [[ $# == 0 ]]; then
@@ -101,15 +124,15 @@ function zaw() {
     reply=()
 
     if (( ${#cand_descriptions} )); then
-        options=("-d" "cand_descriptions" "${(@)options}")
+        src_opts=("-d" "cand_descriptions" "${(@)src_opts}")
     fi
     # TODO: cand_descriptions_assoc
 
     # call filter-select to allow user select item
     if (( ${#cands_assoc} )); then
-        filter-select -e select-action -A cands_assoc "${(@)options}"
+        filter-select -e select-action -A cands_assoc "${(@)src_opts}"
     else
-        filter-select -e select-action "${(@)options}" -- "${(@)candidates}"
+        filter-select -e select-action "${(@)src_opts}" -- "${(@)candidates}"
     fi
 
     if [[ $? == 0 ]]; then
@@ -119,17 +142,21 @@ function zaw() {
             selected=("${reply[2]}")
         fi
 
+        name=$(zaw-name-from-func "${func}")
+
         case "${reply[1]}" in
             accept-line)
-                action="${actions[1]}"
+                action="$(zaw-action "${name}" 1)"
                 ;;
             accept-search)
-                action="${actions[2]}"
+                action="$(zaw-action "${name}" 2)"
                 ;;
             select-action)
                 if [[ ${#actions} -eq 1 ]]; then
-                    action="${actions[1]}"
+                    action="$(zaw-action "${name}" 1)"
                 else
+                    act_descriptions[${actions[(ie)$(zaw-action "${name}" 1)]}]+=" (Default)"
+                    act_descriptions[${actions[(ie)$(zaw-action "${name}" 2)]}]+=" (Alternative)"
                     reply=()
                     filter-select -e select-action -t "select action for '${(j:', ':)selected}'" -d act_descriptions -- "${(@)actions}"
                     ret=$?
