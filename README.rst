@@ -90,29 +90,37 @@ for example, execute ``bindkey '^R' zaw-history`` and
 press ``^R`` to access history source.
 
 you can get all available shortcut widgets' name using ``zaw-print-src``::
-
+  
   $ zaw-print-src
   source name      shortcut widget name
   ----------------------------------------
-  ack              zaw-ack
+  aliases          zaw-aliases
   applications     zaw-applications
   bookmark         zaw-bookmark
+  command-output   zaw-command-output
+  commands         zaw-commands
+  fasd             zaw-fasd
+  fasd-directories zaw-fasd-directories
+  fasd-files       zaw-fasd-files
+  functions        zaw-functions
   git-branches     zaw-git-branches
-  git-recent-all-branches     zaw-git-recent-all-branches
-  git-recent-branches     zaw-git-recent-branches
   git-files        zaw-git-files
   git-files-legacy zaw-git-files-legacy
+  git-log          zaw-git-log
+  git-recent-all-branches zaw-git-recent-all-branches
+  git-recent-branches zaw-git-recent-branches
+  git-reflog       zaw-git-reflog
   git-status       zaw-git-status
   history          zaw-history
+  locate           zaw-locate
   open-file        zaw-open-file
   perldoc          zaw-perldoc
   process          zaw-process
+  programs         zaw-programs
   screens          zaw-screens
   ssh-hosts        zaw-ssh-hosts
   tmux             zaw-tmux
-  fasd             zaw-fasd
-  fasd-directories zaw-directories
-  fasd-files       zaw-files
+  widgets          zaw-widgets
 
 
 key binds and styles
