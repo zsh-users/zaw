@@ -218,7 +218,8 @@ function zaw-callback-replace-buffer() {
 }
 
 function zaw-callback-append-to-buffer() {
-    LBUFFER="${BUFFER}${(j:; :)@}"
+    BUFFER+="${(j:; :)@}"
+    CURSOR=${#BUFFER}
 }
 
 function zaw-callback-edit-file() {
